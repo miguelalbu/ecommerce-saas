@@ -28,3 +28,15 @@ exports.protect = (req, res, next) => {
     res.status(401).json({ message: 'Não autorizado, token não encontrado.' });
   }
 };
+
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    // A função 'protect' já deve ter colocado o usuário em req.user
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Acesso negado. A função '${req.user.role}' não tem permissão para executar esta ação.` 
+      });
+    }
+    next();
+  };
+};

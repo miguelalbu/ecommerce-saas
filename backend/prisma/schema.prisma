@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MODELOS DA APLICAÇÃO
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senhaHash String   @map("senha_hash")
+  funcao    String   @default("ADMIN")
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id        String    @id @default(uuid())
+  nome      String    @unique
+  produtos  Produto[]
+
+  @@map("categorias")
+}
+
+model Produto {
+  id          String    @id @default(uuid())
+  nome        String
+  descricao   String?
+  preco       Decimal   @db.Decimal(10, 2)
+  estoque     Int       @default(0)
+  ativo       Boolean   @default(true)
+  criadoEm    DateTime  @default(now()) @map("criado_em")
+  
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId String    @map("categoria_id")
+
+  @@map("produtos")
+}

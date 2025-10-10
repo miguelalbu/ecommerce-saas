@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Serviço do Banco de Dados PostgreSQL
+  postgres-db:
+    image: postgres:15-alpine  # Usamos uma imagem oficial, leve e recente do Postgres
+    container_name: ecommerce_postgres # Nome fixo para o nosso contêiner
+    restart: always # Sempre reiniciar o contêiner se ele parar
+    
+    # Variáveis de ambiente para configurar o banco na primeira inicialização
+    environment:
+      POSTGRES_USER: docker_user
+      POSTGRES_PASSWORD: docker_password
+      POSTGRES_DB: ecommerce_db
+      
+    # Mapeia a porta 5432 do contêiner para a porta 5432 da sua máquina
+    # Isso permite que você se conecte ao banco de fora do Docker (com DBeaver, etc.)
+    ports:
+      - "5432:5432"
+      
+    # Garante que os dados do banco de dados não sejam perdidos ao recriar o contêiner
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+# Define o volume nomeado que será gerenciado pelo Docker
+volumes:
+  postgres_data:

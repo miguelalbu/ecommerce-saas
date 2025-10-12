@@ -62,3 +62,15 @@ export const getProducts = async (searchTerm?: string) => {
   });
   return handleResponse(response);
 };
+
+export const getOrders = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/orders`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      // Enviar o token é essencial para provar que somos um admin
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+};

@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design System: "Elegância Natural"
+  Paleta baseada no verde sálvia (#71836D), com tons neutros quentes e um toque de dourado.
+  Todas as cores estão em formato HSL para compatibilidade com shadcn/ui.
+*/
+
+@layer base {
+  :root {
+    /* Cores Fundamentais */
+    --background: 60 33% 98.4%; /* #FBFBF9 - Branco "casca de ovo", suave e aconchegante */
+    --foreground: 120 2% 24.1%; /* #3D403D - Cinza-chumbo, mais suave que preto puro */
+
+    /* Cards e Elementos Flutuantes */
+    --card: 40 33% 93.9%; /* #F3F0E9 - Bege cremoso para contraste sutil */
+    --card-foreground: 120 2% 24.1%;
+    --popover: 60 33% 98.4%;
+    --popover-foreground: 120 2% 24.1%;
+
+    /* Cor Primária (A Cor da Marca) */
+    --primary: 106 9.4% 47.1%; /* #71836D - Verde Sálvia da sua logo */
+    --primary-foreground: 0 0% 98%; /* Branco suave para contraste no verde */
+
+    /* Cor Secundária (Complementar) */
+    --secondary: 105 9% 37.8%; /* #5a6956 - Um verde mais escuro e sóbrio */
+    --secondary-foreground: 0 0% 98%;
+
+    /* Textos e Elementos "Muted" */
+    --muted: 40 15% 88%; /* Um cinza-bege claro */
+    --muted-foreground: 120 2% 45%; /* Um cinza médio para textos secundários */
+
+    /* Cor de Destaque e Ação */
+    --accent: 38 48.3% 65.3%; /* #D4AF79 - Dourado suave para botões de "Comprar" */
+    --accent-foreground: 120 2% 24.1%;
+
+    /* Cor Destrutiva (Erros e Alertas) */
+    --destructive: 8 47.8% 52%; /* #B95C50 - Vermelho terracota, harmonioso com a paleta */
+    --destructive-foreground: 0 0% 98%;
+
+    /* Bordas, Inputs e Anel de Foco */
+    --border: 40 33% 85%;
+    --input: 40 33% 85%;
+    --ring: 106 9.4% 47.1%; /* Anel de foco usa a cor primária */
+
+    /* Outras Variáveis de UI */
+    --radius: 0.75rem;
+
+    /* Gradientes e Efeitos Especiais */
+    --gradient-primary: linear-gradient(135deg, hsl(106 9.4% 47.1%), hsl(105 9% 37.8%));
+    --gradient-accent: linear-gradient(135deg, hsl(38 48.3% 65.3%), hsl(38 50% 75%));
+    --gradient-hero: linear-gradient(135deg, hsl(106 9.4% 47.1% / 0.95), hsl(105 9% 37.8% / 0.9));
+    
+    --shadow-soft: 0 2px 20px hsl(106 10% 47% / 0.1);
+    --shadow-elegant: 0 8px 30px hsl(106 10% 47% / 0.12);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Paleta para o Modo Escuro (Dark Mode) */
+  .dark {
+    --background: 120 3% 12%;
+    --foreground: 0 0% 95%;
+
+    --card: 120 3% 16%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 120 3% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 106 9.4% 47.1%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 105 9% 37.8%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 120 3% 25%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 38 48.3% 65.3%;
+    --accent-foreground: 120 2% 24.1%;
+
+    --destructive: 8 47.8% 52%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 120 3% 25%;
+    --input: 120 3% 25%;
+    --ring: 106 9.4% 47.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

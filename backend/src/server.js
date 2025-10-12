@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const userRoutes = require('./routes/userRoutes');
 const shopRoutes = require('./routes/shopRoutes');
@@ -7,6 +8,7 @@ const customerRoutes = require('./routes/customerRoutes');
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {

@@ -1,0 +1,38 @@
+const BASE_URL = 'http://localhost:3000/api';
+
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const message = data.message || `Erro ${response.status}`;
+    throw new Error(message);
+  }
+  return data;
+};
+
+
+export const adminLogin = async (email, password) => {
+  const response = await fetch(`${BASE_URL}/users/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  return handleResponse(response);
+};
+
+export const customerLogin = async (email, password) => {
+  const response = await fetch(`${BASE_URL}/customers/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  return handleResponse(response);
+};
+
+export const customerRegister = async (name, email, password) => {
+  const response = await fetch(`${BASE_URL}/customers/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password }),
+  });
+  return handleResponse(response);
+};

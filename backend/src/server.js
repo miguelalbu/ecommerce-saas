@@ -12,6 +12,7 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'E-commerce API is up and running!' });

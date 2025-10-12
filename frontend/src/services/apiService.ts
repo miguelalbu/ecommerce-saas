@@ -74,3 +74,22 @@ export const getOrders = async (token: string) => {
   });
   return handleResponse(response);
 };
+
+export const getCategories = async () => {
+  const response = await fetch(`${BASE_URL}/shop/categories`);
+  return handleResponse(response);
+};
+
+// Esta função cria um novo produto enviando texto e imagem
+export const createProduct = async (productData: FormData, token: string) => {
+  const response = await fetch(`${BASE_URL}/shop/products`, {
+    method: 'POST',
+    headers: {
+      // IMPORTANTE: NÃO definimos 'Content-Type'. O navegador faz isso
+      'Authorization': `Bearer ${token}`,
+    },
+    body: productData, // Enviamos o objeto FormData diretamente
+  });
+  return handleResponse(response);
+};
+

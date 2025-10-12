@@ -16,6 +16,7 @@ import AuthPage from "./pages/AuthPage";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
+import ProductForm from "./pages/admin/ProductForm";
 import Orders from "./pages/admin/Orders";
 
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="products" element={<Products />} />
+              <Route path="products/new" element={<ProductForm />} />
               <Route path="orders" element={<Orders />} />
             </Route>
             

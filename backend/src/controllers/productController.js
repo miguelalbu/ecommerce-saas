@@ -29,19 +29,24 @@ exports.getAllProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   const { name, description, price, stock, categoryId } = req.body;
+  
+  const imageUrl = req.file ? `uploads/${req.file.filename}` : null;
+
   try {
     const newProduct = await prisma.produto.create({
       data: {
         nome: name,
         descricao: description,
-        preco: price,
-        estoque: stock,
+        preco: parseFloat(price),
+        estoque: parseInt(stock, 10),
         categoriaId: categoryId,
+        imageUrl: imageUrl,
       },
     });
     res.status(201).json(newProduct);
   } catch (error) {
-    res.status(500).json({ message: "Error creating product", error });
+    console.error("Erro ao criar produto:", error);
+    res.status(500).json({ message: "Erro ao criar produto", error });
   }
 };
 

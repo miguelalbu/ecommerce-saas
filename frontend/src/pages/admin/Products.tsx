@@ -1,13 +1,12 @@
-// /src/admin/Products.tsx
-
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@/services/apiService";
+import { getProducts, BACKEND_URL } from "@/services/apiService";
 
 // Função para formatar moeda
 const formatCurrency = (value: number) => {
@@ -25,14 +24,14 @@ const Products = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500); // Espera 500ms após o usuário parar de digitar
+    }, 500);
 
     return () => {
       clearTimeout(timer);
     };
   }, [searchTerm]);
 
-  // Busca os produtos usando react-query. A query refaz a busca quando 'debouncedSearchTerm' muda.
+  // Busca os produtos usando react-query
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['products', debouncedSearchTerm],
     queryFn: () => getProducts(debouncedSearchTerm),
@@ -45,9 +44,11 @@ const Products = () => {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Gerenciar Produtos</h1>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Produto
+        <Button asChild>
+          <Link to="/admin/products/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Produto
+          </Link>
         </Button>
       </div>
 
@@ -70,8 +71,9 @@ const Products = () => {
               <CardContent className="p-6">
                 <div className="flex items-center gap-6">
                   <img
-                    // Usamos uma imagem placeholder por enquanto. Você precisará de um campo para a URL da imagem no seu modelo de Produto.
-                    src={`https://via.placeholder.com/80x80.png?text=${product.nome.charAt(0)}`}
+                    src={product.imageUrl 
+                      ? `${BACKEND_URL}/${product.imageUrl}` 
+                      : `https://via.placeholder.com/80x80.png?text=${product.nome.charAt(0)}`}
                     alt={product.nome}
                     className="w-20 h-20 object-cover rounded"
                   />

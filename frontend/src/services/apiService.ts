@@ -36,3 +36,15 @@ export const customerRegister = async (name, email, password) => {
   });
   return handleResponse(response);
 };
+
+export const getDashboardSummary = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/dashboard/summary`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      // Enviar o token de autenticação é crucial
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+};

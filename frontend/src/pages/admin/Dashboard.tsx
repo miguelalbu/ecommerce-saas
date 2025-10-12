@@ -1,38 +1,57 @@
+// /src/admin/Dashboard.tsx
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getDashboardSummary } from "@/services/apiService";
+import { useAuth } from "@/context/AuthContext";
+
+// Função para formatar moeda
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};
 
 const Dashboard = () => {
+  const { token } = useAuth();
+
+  // useQuery para buscar os dados do dashboard
+  const { data: summary, isLoading, error } = useQuery({
+    queryKey: ['dashboardSummary'], // Chave única para esta query
+    queryFn: () => getDashboardSummary(token!), // Função que busca os dados
+    enabled: !!token, // A query só será executada se o token existir
+  });
+
+  // Estado de Carregamento
+  if (isLoading) {
+    return <div>Carregando dashboard...</div>;
+  }
+
+  // Estado de Erro
+  if (error) {
+    return <div>Erro ao carregar os dados: {error.message}</div>;
+  }
+
+  // Se os dados ainda não chegaram (raro, mas possível)
+  if (!summary) {
+    return <div>Nenhum dado para exibir.</div>;
+  }
+
+  // Mapeia os dados reais para a estrutura dos cards de estatísticas
   const stats = [
-    {
-      title: "Pedidos Hoje",
-      value: "12",
-      icon: ShoppingCart,
-      trend: "+15%",
-    },
-    {
-      title: "Faturamento",
-      value: "R$ 3.450,00",
-      icon: TrendingUp,
-      trend: "+23%",
-    },
-    {
-      title: "Produtos",
-      value: "87",
-      icon: Package,
-      trend: "+3",
-    },
-    {
-      title: "Clientes",
-      value: "234",
-      icon: Users,
-      trend: "+12",
-    },
+    { title: "Total de Pedidos", value: summary.stats.totalOrders, icon: ShoppingCart },
+    { title: "Faturamento Total", value: formatCurrency(summary.stats.totalRevenue), icon: TrendingUp },
+    { title: "Total de Produtos", value: summary.stats.totalProducts, icon: Package },
+    { title: "Total de Clientes", value: summary.stats.totalCustomers, icon: Users },
   ];
 
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
+      {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => (
           <Card key={stat.title} className="animate-fade-in">
@@ -44,56 +63,63 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-green-600">{stat.trend}</span> desde ontem
-              </p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
+        {/* Card de Pedidos Recentes */}
         <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle>Pedidos Recentes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <p className="font-medium">Pedido #{123450 + i}</p>
-                    <p className="text-sm text-muted-foreground">João Silva</p>
+              {summary.recentOrders.length > 0 ? (
+                summary.recentOrders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0">
+                    <div>
+                      <p className="font-medium">Pedido #{order.id.substring(0, 8)}</p>
+                      <p className="text-sm text-muted-foreground">{order.cliente_nome || 'Cliente não identificado'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{formatCurrency(order.valor_total)}</p>
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                        {order.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold">R$ 189,90</p>
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                      Processando
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">Nenhum pedido recente.</p>
+              )}
             </div>
           </CardContent>
         </Card>
 
+        {/* Card de Estoque Baixo */}
         <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle>Produtos com Estoque Baixo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b pb-4">
-                  <div>
-                    <p className="font-medium">Batom Matte Rosa</p>
-                    <p className="text-sm text-muted-foreground">Categoria: Maquiagem</p>
+              {summary.lowStockProducts.length > 0 ? (
+                summary.lowStockProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0">
+                    <div>
+                      <p className="font-medium">{product.nome}</p>
+                      <p className="text-sm text-muted-foreground">Categoria: {product.categoria.nome}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-destructive font-semibold">{product.estoque} un.</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-destructive font-semibold">{3 + i} un.</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">Nenhum produto com estoque baixo.</p>
+              )}
             </div>
           </CardContent>
         </Card>

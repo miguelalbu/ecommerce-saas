@@ -18,7 +18,6 @@ const AdminLayout = () => {
       <aside className="w-64 bg-secondary text-secondary-foreground p-6 flex flex-col">
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-accent" />
             <span className="text-xl font-bold">Luar Cosméticos</span>
           </div>
           <p className="text-sm text-secondary-foreground/70">Painel Admin</p>

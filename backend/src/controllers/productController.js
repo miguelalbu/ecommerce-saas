@@ -2,10 +2,29 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.getAllProducts = async (req, res) => {
-  const products = await prisma.produto.findMany({
-    include: { categoria: true },
-  });
-  res.json(products);
+  // Pega o parâmetro 'search' da URL, se ele existir
+  const { search } = req.query;
+
+  const whereCondition = search
+    ? { // Se 'search' existir, adiciona essa condição
+        nome: {
+          contains: search,
+          mode: 'insensitive', // Não diferencia maiúsculas de minúsculas
+        },
+      }
+    : {}; // Se 'search' não existir, a condição é vazia (retorna tudo)
+
+  try {
+    const products = await prisma.produto.findMany({
+      where: whereCondition,
+      include: { categoria: true },
+      orderBy: { criadoEm: 'desc' }, // Ordena pelos mais recentes
+    });
+    res.json(products);
+  } catch (error) {
+    console.error("Erro ao buscar produtos:", error);
+    res.status(500).json({ message: "Erro ao buscar produtos." });
+  }
 };
 
 exports.createProduct = async (req, res) => {

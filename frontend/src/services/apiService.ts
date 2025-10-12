@@ -48,3 +48,17 @@ export const getDashboardSummary = async (token: string) => {
   });
   return handleResponse(response);
 };
+
+export const getProducts = async (searchTerm?: string) => {
+  let url = `${BASE_URL}/shop/products`;
+
+  if (searchTerm && searchTerm.trim() !== '') {
+    url += `?search=${encodeURIComponent(searchTerm)}`;
+  }
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse(response);
+};

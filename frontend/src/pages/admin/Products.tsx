@@ -71,8 +71,8 @@ const Products = () => {
               <CardContent className="p-6">
                 <div className="flex items-center gap-6">
                   <img
-                    src={product.imageUrl 
-                      ? `${BACKEND_URL}/${product.imageUrl}` 
+                    src={product.imageUrl
+                      ? `${BACKEND_URL}/${product.imageUrl}`
                       : `https://via.placeholder.com/80x80.png?text=${product.nome.charAt(0)}`}
                     alt={product.nome}
                     className="w-20 h-20 object-cover rounded"
@@ -90,8 +90,10 @@ const Products = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="icon">
-                      <Edit className="h-4 w-4" />
+                    <Button variant="outline" size="icon" asChild>
+                      <Link to={`/admin/products/edit/${product.id}`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
                     </Button>
                     <Button variant="outline" size="icon">
                       <Trash2 className="h-4 w-4 text-destructive" />

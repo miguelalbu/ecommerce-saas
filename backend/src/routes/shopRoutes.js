@@ -16,7 +16,8 @@ router.post('/categories', protect, categoryController.createCategory);
 router.get('/products', productController.getAllProducts);
 router.post('/products', protect, authorize('ADMIN'), upload.single('image'), productController.createProduct);
 router.get('/products/:id', productController.getProductById);
-router.put('/products/:id', protect, productController.updateProduct);
+router.put('/products/:id', protect, authorize('ADMIN'), upload.single('image'), productController.updateProduct);
 router.delete('/products/:id', protect, productController.deleteProduct);
+router.put('/products/:id', protect, authorize('ADMIN'), upload.single('image'), productController.updateProduct);
 
 module.exports = router;

@@ -94,3 +94,19 @@ export const createProduct = async (productData: FormData, token: string) => {
   return handleResponse(response);
 };
 
+
+export const getProductById = async (id: string) => {
+  const response = await fetch(`${BASE_URL}/shop/products/${id}`);
+  return handleResponse(response);
+};
+
+export const updateProduct = async (id: string, productData: FormData, token: string) => {
+  const response = await fetch(`${BASE_URL}/shop/products/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: productData,
+  });
+  return handleResponse(response);
+};

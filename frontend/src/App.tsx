@@ -19,6 +19,7 @@ import Products from "./pages/admin/Products";
 import ProductForm from "./pages/admin/ProductForm";
 import Orders from "./pages/admin/Orders";
 import Categories from "./pages/admin/Categories";
+import Users from "./pages/admin/Users";
 
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<Orders />} />
               <Route path="categories" element={<Categories />} />
+              <Route path="users" element={<Users />} />
             </Route>
             
             {/* Rota "Não Encontrado" */}

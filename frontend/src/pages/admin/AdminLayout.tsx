@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Package, ShoppingBag, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import path from "path";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -10,7 +11,8 @@ const AdminLayout = () => {
     { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/admin/products", label: "Produtos", icon: Package },
     { path: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
-    {  path: "/admin/categories", label: "Categorias", icon: Package }
+    {  path: "/admin/categories", label: "Categorias", icon: Package },
+    { path: "/admin/users", label: "Usuários", icon: Package }
   ];
 
   return (

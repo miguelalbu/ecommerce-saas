@@ -150,3 +150,35 @@ export const deleteCategory = async (id: string, token: string) => {
   }
   return true;
 };
+
+export const getUsers = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/user-management`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const deleteUser = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/user-management/users/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao deletar');
+  }
+  return true;
+};
+
+
+export const deleteCustomer = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/user-management/customers/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao deletar');
+  }
+  return true;
+};

@@ -49,13 +49,17 @@ model Produto {
 }
 
 model Cliente {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senhaHash String   @map("senha_hash")
-  // Adicionar futuramente mais informações CPF/DATA_NASCIMENTO/INFO DO CLIENTE.
-  criadoEm  DateTime @default(now()) @map("criado_em")
-  pedidos   Pedido[]
+  id               String    @id @default(uuid())
+  nome             String
+  sobrenome        String? // Adicionado
+  email            String    @unique
+  cpf              String?   @unique // Adicionado e marcado como único
+  telefone         String?   // Adicionado
+  dataNascimento   DateTime? @map("data_nascimento") // Adicionado
+  genero           String?   // Adicionado
+  senhaHash        String    @map("senha_hash")
+  criadoEm         DateTime  @default(now()) @map("criado_em")
+  pedidos          Pedido[]
 
   @@map("clientes")
 }

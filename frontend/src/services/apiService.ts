@@ -29,15 +29,6 @@ export const customerLogin = async (email, password) => {
   return handleResponse(response);
 };
 
-export const customerRegister = async (name, email, password) => {
-  const response = await fetch(`${BASE_URL}/customers/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password }),
-  });
-  return handleResponse(response);
-};
-
 export const getDashboardSummary = async (token: string) => {
   const response = await fetch(`${BASE_URL}/dashboard/summary`, {
     method: 'GET',
@@ -186,6 +177,27 @@ export const deleteCustomer = async (id: string, token: string) => {
 export const getOrderById = async (id: string, token: string) => {
   const response = await fetch(`${BASE_URL}/orders/${id}`, {
     headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+type RegisterData = {
+  name: string;
+  sobrenome: string;
+  email: string;
+  password: string;
+  cpf: string;
+  telefone: string;
+  dataNascimento: string;
+  genero: string;
+};
+
+// A função agora aceita um único objeto com todos os dados
+export const customerRegister = async (data: RegisterData) => {
+  const response = await fetch(`${BASE_URL}/customers/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data), // Envia o objeto completo
   });
   return handleResponse(response);
 };

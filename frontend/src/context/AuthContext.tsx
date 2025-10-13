@@ -5,15 +5,18 @@ interface AuthContextType {
   token: string | null;
   userRole: 'admin' | 'customer' | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'admin' | 'customer' | null>(null);
+  const [isLoading, setIsLoading] = useState(true); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +30,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (e) {
         console.error("Token salvo é inválido:", e);
         localStorage.removeItem('token'); // Limpa o token inválido
+      } finally {
+        setIsLoading(false); 
       }
     }
   }, []);
@@ -54,6 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     token,
     userRole,
     isAuthenticated: !!token,
+    isLoading,
     login,
     logout,
   };

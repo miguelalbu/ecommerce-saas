@@ -22,6 +22,8 @@ import Orders from "./pages/admin/Orders";
 import Categories from "./pages/admin/Categories";
 import Users from "./pages/admin/Users";
 import OrderDetail from "./pages/admin/OrderDetail";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Profile from './pages/Profile';
 
 
 const queryClient = new QueryClient();
@@ -35,6 +37,12 @@ const App = () => (
         <AuthProvider>
           <CartProvider>
             <Routes>
+              {/* Rota de Perfil (Protegida) */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+
+
               {/* Rotas da Loja (Públicas) */}
               <Route path="/" element={<Home />} />
               <Route path="/catalog" element={<Catalog />} />

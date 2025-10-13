@@ -201,3 +201,29 @@ export const customerRegister = async (data: RegisterData) => {
   });
   return handleResponse(response);
 };
+
+export const getProfile = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/profile`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const getAddresses = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/addresses`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const addAddress = async (addressData: any, token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/addresses`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(addressData),
+  });
+  return handleResponse(response);
+};

@@ -110,3 +110,18 @@ export const updateProduct = async (id: string, productData: FormData, token: st
   });
   return handleResponse(response);
 };
+
+export const deleteProduct = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/shop/products/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    const message = data.message || `Erro ${response.status}`;
+    throw new Error(message);
+  }
+  return true; // Retorna true em caso de sucesso
+};

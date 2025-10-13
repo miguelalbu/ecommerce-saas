@@ -7,33 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import productLipstick from "@/assets/product-lipstick.jpg";
+import { useCart } from "@/context/CartContext";
+import { BACKEND_URL } from "@/services/apiService";
 
 const Cart = () => {
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [cep, setCep] = useState("");
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Batom Matte Luxo Rosa",
-      price: 89.90,
-      image: productLipstick,
-      quantity: 2,
-    },
-  ]);
-
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal > 199 ? 0 : 15.90;
@@ -69,7 +48,7 @@ const Cart = () => {
                     <CardContent className="p-6">
                       <div className="flex gap-4">
                         <img
-                          src={item.image}
+                          src={item.image ? `${BACKEND_URL}/${item.image}` : `https://via.placeholder.com/96x96.png?text=Luar`}
                           alt={item.name}
                           className="w-24 h-24 object-cover rounded-md"
                         />
@@ -104,7 +83,7 @@ const Cart = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => removeFromCart(item.id)}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -121,24 +100,16 @@ const Cart = () => {
                 <Card className="sticky top-24">
                   <CardContent className="p-6">
                     <h2 className="text-xl font-bold mb-6">Resumo do Pedido</h2>
-
-                    {/* CEP Calculator */}
+                    
+                    {/* O restante do seu JSX para o resumo do pedido permanece o mesmo */}
                     <div className="mb-6">
-                      <label className="text-sm font-medium mb-2 block">
-                        Calcular Frete
-                      </label>
+                      <label className="text-sm font-medium mb-2 block">Calcular Frete</label>
                       <div className="flex gap-2">
-                        <Input
-                          placeholder="CEP"
-                          value={cep}
-                          onChange={(e) => setCep(e.target.value)}
-                        />
+                        <Input placeholder="CEP" value={cep} onChange={(e) => setCep(e.target.value)} />
                         <Button variant="outline">OK</Button>
                       </div>
                     </div>
-
                     <Separator className="my-6" />
-
                     <div className="space-y-3 mb-6">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Subtotal</span>
@@ -146,9 +117,7 @@ const Cart = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Frete</span>
-                        <span className="font-semibold">
-                          {shipping === 0 ? "Grátis" : `R$ ${shipping.toFixed(2)}`}
-                        </span>
+                        <span className="font-semibold">{shipping === 0 ? "Grátis" : `R$ ${shipping.toFixed(2)}`}</span>
                       </div>
                       {subtotal < 199 && (
                         <p className="text-xs text-muted-foreground">
@@ -156,20 +125,14 @@ const Cart = () => {
                         </p>
                       )}
                     </div>
-
                     <Separator className="my-6" />
-
                     <div className="flex justify-between mb-6">
                       <span className="text-lg font-bold">Total</span>
-                      <span className="text-2xl font-bold text-primary">
-                        R$ {total.toFixed(2)}
-                      </span>
+                      <span className="text-2xl font-bold text-primary">R$ {total.toFixed(2)}</span>
                     </div>
-
                     <Button className="w-full mb-3" size="lg" asChild>
                       <Link to="/checkout">Finalizar Compra</Link>
                     </Button>
-                    
                     <Button variant="outline" className="w-full" asChild>
                       <Link to="/catalog">Continuar Comprando</Link>
                     </Button>

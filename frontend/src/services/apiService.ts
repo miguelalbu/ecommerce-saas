@@ -125,3 +125,28 @@ export const deleteProduct = async (id: string, token: string) => {
   }
   return true; // Retorna true em caso de sucesso
 };
+
+
+export const createCategory = async (name: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/shop/categories`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  });
+  return handleResponse(response);
+};
+
+export const deleteCategory = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/shop/categories/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao deletar');
+  }
+  return true;
+};

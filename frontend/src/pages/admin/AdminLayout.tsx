@@ -10,6 +10,7 @@ const AdminLayout = () => {
     { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { path: "/admin/products", label: "Produtos", icon: Package },
     { path: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
+    {  path: "/admin/categories", label: "Categorias", icon: Package }
   ];
 
   return (

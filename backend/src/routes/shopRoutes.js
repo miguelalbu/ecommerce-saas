@@ -12,7 +12,8 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 
 router.get('/categories', categoryController.getAllCategories);
-router.post('/categories', protect, categoryController.createCategory);
+router.post('/categories', protect, authorize('ADMIN'), categoryController.createCategory);
+router.delete('/categories/:id', protect, authorize('ADMIN'), categoryController.deleteCategory);
 router.get('/products', productController.getAllProducts);
 router.post('/products', protect, authorize('ADMIN'), upload.single('image'), productController.createProduct);
 router.get('/products/:id', productController.getProductById);

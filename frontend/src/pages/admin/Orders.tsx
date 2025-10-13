@@ -5,6 +5,7 @@ import { Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getOrders } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router-dom";
 
 // Funções de formatação para deixar os dados mais amigáveis
 const formatCurrency = (value: number) => {
@@ -84,8 +85,10 @@ const Orders = () => {
                   </div>
 
                   <Button variant="outline">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Detalhes
+                    <Link to={`/admin/orders/${order.id}`}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      Detalhes
+                    </Link>
                   </Button>
                 </div>
               </CardContent>

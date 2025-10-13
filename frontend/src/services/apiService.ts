@@ -182,3 +182,10 @@ export const deleteCustomer = async (id: string, token: string) => {
   }
   return true;
 };
+
+export const getOrderById = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/orders/${id}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};

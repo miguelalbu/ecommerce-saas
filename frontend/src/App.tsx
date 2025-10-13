@@ -20,6 +20,7 @@ import ProductForm from "./pages/admin/ProductForm";
 import Orders from "./pages/admin/Orders";
 import Categories from "./pages/admin/Categories";
 import Users from "./pages/admin/Users";
+import OrderDetail from "./pages/admin/OrderDetail";
 
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="orders/:id" element={<OrderDetail />} />
               <Route path="categories" element={<Categories />} />
               <Route path="users" element={<Users />} />
             </Route>

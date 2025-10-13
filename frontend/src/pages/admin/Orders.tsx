@@ -86,8 +86,7 @@ const Orders = () => {
 
                   <Button variant="outline">
                     <Link to={`/admin/orders/${order.id}`}>
-                      <Eye className="mr-2 h-4 w-4" />
-                      Detalhes
+                      Detalhes Pedido
                     </Link>
                   </Button>
                 </div>

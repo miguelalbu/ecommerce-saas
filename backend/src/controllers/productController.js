@@ -2,22 +2,34 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.getAllProducts = async (req, res) => {
-  const { search } = req.query;
+  const { search, categoryId, sortBy } = req.query;
 
-  const whereCondition = search
-    ? {
-        nome: {
-          contains: search,
-          mode: 'insensitive',
-        },
-      }
-    : {};
+  const whereCondition = {
+    ...(search && { nome: { contains: search, mode: 'insensitive' } }),
+    ...(categoryId && { categoriaId: categoryId }),
+  };
+
+  let orderByCondition = {};
+  switch (sortBy) {
+    case 'price-asc':
+      orderByCondition = { preco: 'asc' };
+      break;
+    case 'price-desc':
+      orderByCondition = { preco: 'desc' };
+      break;
+    case 'name':
+      orderByCondition = { nome: 'asc' };
+      break;
+    default:
+      orderByCondition = { criadoEm: 'desc' };
+      break;
+  }
 
   try {
     const products = await prisma.produto.findMany({
       where: whereCondition,
+      orderBy: orderByCondition,
       include: { categoria: true },
-      orderBy: { criadoEm: 'desc' }, // Ordena pelos mais recentes
     });
     res.json(products);
   } catch (error) {

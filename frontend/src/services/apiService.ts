@@ -50,17 +50,17 @@ export const getDashboardSummary = async (token: string) => {
   return handleResponse(response);
 };
 
-export const getProducts = async (searchTerm?: string) => {
-  let url = `${BASE_URL}/shop/products`;
+export const getProducts = async (
+  searchTerm?: string,
+  categoryId?: string,
+  sortBy?: string
+) => {
+  const params = new URLSearchParams();
+  if (searchTerm) params.append('search', searchTerm);
+  if (categoryId && categoryId !== 'all') params.append('categoryId', categoryId);
+  if (sortBy) params.append('sortBy', sortBy);
 
-  if (searchTerm && searchTerm.trim() !== '') {
-    url += `?search=${encodeURIComponent(searchTerm)}`;
-  }
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await fetch(`${BASE_URL}/shop/products?${params.toString()}`);
   return handleResponse(response);
 };
 

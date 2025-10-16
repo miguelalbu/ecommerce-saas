@@ -97,7 +97,8 @@ const Catalog = () => {
                     name={product.nome}
                     price={Number(product.preco)}
                     category={product.categoria.nome}
-                    image={product.imageUrl ? `${BACKEND_URL}/${product.imageUrl}` : undefined} stock={0}                  />
+                    image={product.imageUrl}
+                    stock={product.estoque}                  />
                 ))}
               </div>
             </>

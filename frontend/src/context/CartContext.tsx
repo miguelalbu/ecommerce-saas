@@ -45,8 +45,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       return [...prevItems, { 
         id: product.id, 
         name: product.nome, 
-        price: Number(product.preco), 
-        image: product.imageUrl, 
+        price: product.price, 
+        image: product.image, 
         quantity 
       }];
     });

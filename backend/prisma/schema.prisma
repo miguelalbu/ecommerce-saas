@@ -25,9 +25,9 @@ model Usuario {
 }
 
 model Categoria {
-  id        String    @id @default(uuid())
-  nome      String    @unique
-  produtos  Produto[]
+  id       String    @id @default(uuid())
+  nome     String    @unique
+  produtos Produto[]
 
   @@map("categorias")
 }
@@ -41,9 +41,11 @@ model Produto {
   ativo       Boolean   @default(true)
   imageUrl    String?   @map("image_url")
   criadoEm    DateTime  @default(now()) @map("criado_em")
-  
+
   categoria   Categoria @relation(fields: [categoriaId], references: [id])
   categoriaId String    @map("categoria_id")
+
+  itens       ItemPedido[] // Relação com os itens do pedido
 
   @@map("produtos")
 }
@@ -66,32 +68,48 @@ model Cliente {
 }
 
 model Endereco {
-  id           String  @id @default(uuid())
-  rua          String
-  numero       String
-  complemento  String?
-  bairro       String
-  cidade       String
-  estado       String
-  cep          String
+  id          String  @id @default(uuid())
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  cep         String
 
-  // Relação com Cliente
-  cliente      Cliente @relation(fields: [clienteId], references: [id])
-  clienteId    String  @map("cliente_id")
+  cliente     Cliente @relation(fields: [clienteId], references: [id])
+  clienteId   String  @map("cliente_id")
 
   @@map("enderecos")
 }
 
 model Pedido {
-  id           String   @id @default(uuid())
-  valor_total  Decimal  @db.Decimal(10, 2)
-  status       String   @default("PROCESSANDO")
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  cliente_nome String?
-  
-  // Adicione estas duas linhas para conectar ao cliente
-  cliente      Cliente  @relation(fields: [clienteId], references: [id])
-  clienteId    String   @map("cliente_id")
+  id             String       @id @default(uuid())
+  valor_total    Decimal      @db.Decimal(10, 2)
+  status         String       @default("PROCESSANDO")
+  criadoEm       DateTime     @default(now()) @map("criado_em")
+  cliente_nome   String?
+  codigoRastreio String?      @map("codigo_rastreio")
+
+  cliente        Cliente      @relation(fields: [clienteId], references: [id])
+  clienteId      String       @map("cliente_id")
+
+  itens          ItemPedido[] // Relação com os itens do pedido
 
   @@map("pedidos")
+}
+
+// MODELO QUE ESTAVA FALTANDO
+model ItemPedido {
+  id                      String   @id @default(uuid())
+  quantidade              Int
+  precoNoMomentoDaCompra  Decimal  @map("preco_no_momento_da_compra") @db.Decimal(10, 2)
+
+  pedido                  Pedido   @relation(fields: [pedidoId], references: [id])
+  pedidoId                String   @map("pedido_id")
+
+  produto                 Produto  @relation(fields: [produtoId], references: [id])
+  produtoId               String   @map("produto_id")
+
+  @@map("itens_pedido")
 }

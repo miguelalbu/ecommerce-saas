@@ -227,3 +227,17 @@ export const addAddress = async (addressData: any, token: string) => {
   });
   return handleResponse(response);
 };
+
+export const placeOrder = async (checkoutData: any, token?: string | null) => {
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${BASE_URL}/checkout`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(checkoutData),
+  });
+  return handleResponse(response);
+};

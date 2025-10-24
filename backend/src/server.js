@@ -7,6 +7,7 @@ const customerRoutes = require('./routes/customerRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userManagementeRoutes = require('./routes/userManagementRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -25,6 +26,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/user-management', userManagementeRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port http://localhost:${PORT}`);

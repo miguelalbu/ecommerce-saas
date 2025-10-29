@@ -99,7 +99,6 @@ model Pedido {
   @@map("pedidos")
 }
 
-// MODELO QUE ESTAVA FALTANDO
 model ItemPedido {
   id                      String   @id @default(uuid())
   quantidade              Int

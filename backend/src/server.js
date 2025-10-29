@@ -20,13 +20,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'E-commerce API is up and running!' });
 });
 
-app.use('/api/users', userRoutes);
-app.use('/api/shop', shopRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/user-management', userManagementeRoutes);
-app.use('/api/checkout', checkoutRoutes);
+app.use('/api/users', userRoutes); // API Users route
+app.use('/api/shop', shopRoutes); // API Shop route
+app.use('/api/customers', customerRoutes); // API Customers route
+app.use('/api/dashboard', dashboardRoutes); // API Dashboard route
+app.use('/api/orders', orderRoutes); // API Orders route
+app.use('/api/user-management', userManagementeRoutes); // API User Management route
+app.use('/api/checkout', checkoutRoutes); // API Checkout route
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port http://localhost:${PORT}`);

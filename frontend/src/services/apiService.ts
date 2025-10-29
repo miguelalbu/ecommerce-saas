@@ -44,12 +44,14 @@ export const getDashboardSummary = async (token: string) => {
 export const getProducts = async (
   searchTerm?: string,
   categoryId?: string,
-  sortBy?: string
+  sortBy?: string,
+  featuredOnly?: boolean
 ) => {
   const params = new URLSearchParams();
   if (searchTerm) params.append('search', searchTerm);
   if (categoryId && categoryId !== 'all') params.append('categoryId', categoryId);
   if (sortBy) params.append('sortBy', sortBy);
+  if (featuredOnly) params.append('featuredOnly', 'true');
 
   const response = await fetch(`${BASE_URL}/shop/products?${params.toString()}`);
   return handleResponse(response);

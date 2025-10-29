@@ -1,13 +1,17 @@
+// /src/pages/Home.tsx
+
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Link } from "react-router-dom";
-import { Sparkles, TruckIcon, Shield, CreditCard } from "lucide-react";
+// CORREÇÃO: Garante que todos os ícones necessários estão importados
+import { Sparkles, TruckIcon, Shield, CreditCard } from "lucide-react"; 
+import { useQuery } from "@tanstack/react-query";
+import { getProducts, BACKEND_URL } from "@/services/apiService";
+
+// Imagens da página
 import heroBanner from "@/assets/hero-banner.jpg";
-import productLipstick from "@/assets/product-lipstick.jpg";
-import productPerfume from "@/assets/product-perfume.jpg";
-import productCream from "@/assets/product-cream.jpg";
 import oBoticario from "@/assets/oboticario.png";
 import natura from "@/assets/natura.png";
 import eudora from "@/assets/eudora.png";
@@ -15,53 +19,33 @@ import avon from "@/assets/avon.png";
 import giovanna from "@/assets/giovanna.png";
 import mahogany from "@/assets/mahogany.png";
 
-const brands = [
-  { name: "O Boticário", logo: oBoticario, },
-  { name: "Natura", logo: natura, },
-  { name: "Eudora", logo: eudora, },
-  { name: "Avon", logo: avon, },
-  { name: "Giovanna Baby", logo: giovanna, },
-  { name: "Mahogany", logo: mahogany, },
-]
+// Tipos para os dados da API
+type Product = {
+  id: string;
+  nome: string;
+  preco: number;
+  estoque: number;
+  categoria: { nome: string };
+  imageUrl?: string;
+  isFeatured?: boolean;
+};
 
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Batom Matte Luxo Rosa",
-    price: 89.90,
-    image: productLipstick,
-    category: "Maquiagem",
-    stock: 15,
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "Perfume Golden Elegance 50ml",
-    price: 249.90,
-    image: productPerfume,
-    category: "Perfumes",
-    stock: 8,
-    discount: 15,
-  },
-  {
-    id: 3,
-    name: "Creme Facial Anti-idade Premium",
-    price: 179.90,
-    image: productCream,
-    category: "Skincare",
-    stock: 3,
-  },
-  {
-    id: 4,
-    name: "Batom Nude Elegante",
-    price: 79.90,
-    image: productLipstick,
-    category: "Maquiagem",
-    stock: 20,
-  },
+const brands = [
+  { name: "O Boticário", logo: oBoticario },
+  { name: "Natura", logo: natura },
+  { name: "Eudora", logo: eudora },
+  { name: "Avon", logo: avon },
+  { name: "Giovanna Baby", logo: giovanna },
+  { name: "Mahogany", logo: mahogany },
 ];
 
 const Home = () => {
+  // Busca apenas os produtos em destaque da API
+  const { data: featuredProducts, isLoading, error } = useQuery<Product[]>({
+    queryKey: ['featuredProducts'],
+    queryFn: () => getProducts(undefined, undefined, undefined, true),
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -76,12 +60,12 @@ const Home = () => {
           />
           <div className="absolute inset-0 bg-gradient-hero" />
         </div>
-
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl text-white animate-fade-in">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-accent" />
-              <span className="text-accent font-semibold tracking-wide"></span>
+             <div className="flex items-center gap-2 mb-4">
+               {/* Ícone Sparkles estava faltando */}
+              <Sparkles className="h-6 w-6 text-accent" /> 
+              {/* <span className="text-accent font-semibold tracking-wide"></span> // Span vazio removido */}
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Luar Cosméticos e Perfumaria
@@ -89,7 +73,7 @@ const Home = () => {
             <p className="text-xl mb-8 text-white/90">
               Sua loja multimarcas de cosméticos, com entrega rápida e produtos de qualidade.
             </p>
-            <div className="flex flex-wrap gap-4">
+             <div className="flex flex-wrap gap-4">
               <Button variant="hero" size="lg" asChild>
                 <Link to="/catalog">Explorar Produtos</Link>
               </Button>
@@ -101,12 +85,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features */}
+      {/* --- SEÇÃO FEATURES COMPLETA E CORRIGIDA --- */}
       <section className="py-12 border-y bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Frete Grátis */}
             <div className="flex items-center gap-4 animate-fade-in">
-              <div className="h-12 w-12 bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 bg-primary/10 flex items-center justify-center flex-shrink-0 rounded-full"> {/* Adicionado rounded-full */}
                 <TruckIcon className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -115,8 +100,9 @@ const Home = () => {
               </div>
             </div>
 
+            {/* Compra Segura (Restaurado) */}
             <div className="flex items-center gap-4 animate-fade-in">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 bg-primary/10 flex items-center justify-center flex-shrink-0 rounded-full">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -125,8 +111,9 @@ const Home = () => {
               </div>
             </div>
 
+            {/* Parcelamento (Restaurado) */}
             <div className="flex items-center gap-4 animate-fade-in">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 bg-primary/10 flex items-center justify-center flex-shrink-0 rounded-full">
                 <CreditCard className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -135,8 +122,9 @@ const Home = () => {
               </div>
             </div>
 
+            {/* Produtos Originais (Restaurado) */}
             <div className="flex items-center gap-4 animate-fade-in">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 bg-primary/10 flex items-center justify-center flex-shrink-0 rounded-full">
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -147,6 +135,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      {/* ------------------------------------------- */}
 
       {/* Featured Products */}
       <section className="py-20">
@@ -160,9 +149,20 @@ const Home = () => {
             </p>
           </div>
 
+          {isLoading && <p className="text-center">Carregando destaques...</p>}
+          {error && <p className="text-center text-destructive">Erro ao carregar destaques.</p>}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
+            {featuredProducts?.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.nome}
+                price={Number(product.preco)}
+                category={product.categoria.nome}
+                image={product.imageUrl}
+                stock={product.estoque}
+              />
             ))}
           </div>
 
@@ -174,6 +174,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Seção de Marcas */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-fade-in">
@@ -196,7 +197,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* CTA Section */}
+      
       <Footer />
     </div>
   );

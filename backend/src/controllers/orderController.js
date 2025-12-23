@@ -95,6 +95,37 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+exports.getMyOrders = async (req, res) => {
+  // O middleware de autenticação deve popular req.user com os dados do token
+  const userId = req.user?.id || req.userId; 
+
+  if (!userId) {
+    return res.status(401).json({ message: "Usuário não identificado." });
+  }
+
+  try {
+    const orders = await prisma.pedido.findMany({
+      where: {
+        clienteId: userId // Filtra apenas pedidos deste usuário
+      },
+      orderBy: {
+        criadoEm: 'desc', // Mais recentes primeiro
+      },
+      include: {
+        itens: {
+          include: {
+            produto: true // Traz nome do produto para exibir no resumo se quiser
+          }
+        }
+      },
+    });
+    res.json(orders);
+  } catch (error) {
+    console.error("Erro ao buscar meus pedidos:", error);
+    res.status(500).json({ message: "Erro ao buscar seus pedidos." });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   const { id } = req.params;
   try {

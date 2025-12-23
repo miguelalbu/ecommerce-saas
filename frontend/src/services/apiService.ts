@@ -159,6 +159,16 @@ export const deleteCategory = async (id: string, token: string) => {
 
 // --- PEDIDOS (ORDERS) ---
 
+export const getMyOrders = async (token: string) => {
+  // Nota: Seu backend precisa ter uma rota que filtre pelo ID do usuário do token
+  // Geralmente é a mesma rota GET /orders, mas o backend filtra se não for admin.
+  // Ou uma rota específica GET /orders/my-orders
+  const response = await fetch(`${BASE_URL}/orders/my-orders`, { 
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
 export const getOrders = async (token: string) => {
   const response = await fetch(`${BASE_URL}/orders`, {
     method: 'GET',

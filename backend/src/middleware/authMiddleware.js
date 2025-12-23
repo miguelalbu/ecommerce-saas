@@ -1,40 +1,43 @@
 const jwt = require('jsonwebtoken');
 
-exports.protect = (req, res, next) => {
+exports.protect = async (req, res, next) => {
   let token;
 
-  // O token geralmente é enviado no header 'Authorization' no formato 'Bearer TOKEN'
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
     try {
-      // 1. Extrair o token do header
+      // 1. Pega o token
       token = req.headers.authorization.split(' ')[1];
 
-      // 2. Verificar se o token é válido usando a chave secreta
+      // 2. Decodifica
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // 3. Anexar os dados do usuário (do token) ao objeto 'req'
-      // para que as próximas rotas possam usá-lo
-      req.user = decoded;
-
-      // 4. Chamar a próxima função no ciclo da requisição
-      next();
+      // 3. Adiciona o usuário ao request
+      // Dica: Se quiser garantir que o usuário ainda existe no banco, você poderia fazer uma busca aqui,
+      // mas apenas 'decoded' já serve para pegar o ID.
+      req.user = decoded; 
+      
+      // 4. Passa para o próximo controller
+      return next(); 
 
     } catch (error) {
-      res.status(401).json({ message: 'Token não é válido ou expirou.' });
+      console.error(error);
+      return res.status(401).json({ message: 'Não autorizado, token falhou.' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Não autorizado, token não encontrado.' });
+    return res.status(401).json({ message: 'Não autorizado, sem token.' });
   }
 };
 
 exports.authorize = (...roles) => {
   return (req, res, next) => {
-    // A função 'protect' já deve ter colocado o usuário em req.user
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        message: `Acesso negado. A função '${req.user.role}' não tem permissão para executar esta ação.` 
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: `Acesso negado. A função '${req.user?.role}' não tem permissão.`
       });
     }
     next();

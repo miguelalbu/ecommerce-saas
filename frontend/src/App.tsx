@@ -25,6 +25,8 @@ import OrderDetail from "./pages/admin/OrderDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from './pages/Profile';
 import OrdersForm from './pages/admin/OrdersForm'
+import MyOrders from "./pages/myOrders";
+import ClientOrderDetail from "./pages/ClientOrderDetail";
 
 
 const queryClient = new QueryClient();
@@ -51,6 +53,8 @@ const App = () => (
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/my-orders/:id" element={<ClientOrderDetail />} />
 
               {/* Rotas de Autenticação */}
               <Route path="/login" element={<AuthPage userType="customer" />} />

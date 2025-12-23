@@ -92,8 +92,8 @@ model Pedido {
   cliente_nome   String?
   codigoRastreio String?      @map("codigo_rastreio")
 
-  cliente        Cliente      @relation(fields: [clienteId], references: [id])
-  clienteId      String       @map("cliente_id")
+  cliente        Cliente?      @relation(fields: [clienteId], references: [id])
+  clienteId      String?       @map("cliente_id")
 
   itens          ItemPedido[] // Relação com os itens do pedido
 

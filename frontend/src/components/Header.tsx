@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, User, LogIn, UserPlus } from "lucide-react";
+import { ShoppingCart, User, LogIn, UserPlus, MoreVertical } from "lucide-react"; // Importei MoreVertical
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import {
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
-  // 2. PEGAR OS DADOS DE AUTENTICAÇÃO E DO CARRINHO
   const { isAuthenticated, userRole, logout } = useAuth();
   const { totalItems } = useCart();
 
@@ -25,15 +24,16 @@ export const Header = () => {
           Luar Cosméticos
         </Link>
 
-        {/* Navigation Links */}
+        {/* --- NAVEGAÇÃO DESKTOP (Escondida no Mobile) --- */}
         <nav className="hidden md:flex gap-6">
           <Link to="/" className="text-sm font-medium hover:text-primary">Página Inicial</Link>
           <Link to="/catalog" className="text-sm font-medium hover:text-primary">Catálogo</Link>
-          {/* Adicione outros links de navegação aqui se precisar */}
         </nav>
 
-        {/* Action Icons */}
-        <div className="flex items-center gap-4">
+        {/* Ícones de Ação */}
+        <div className="flex items-center gap-2 md:gap-4">
+          
+          {/* Carrinho (Visível em Mobile e Desktop) */}
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
@@ -45,60 +45,86 @@ export const Header = () => {
             </Button>
           </Link>
           
-          {/* --- 3. LÓGICA DE AUTENTICAÇÃO --- */}
-          {isAuthenticated ? (
-            // SE ESTIVER LOGADO: MOSTRA O MENU DO PERFIL
+          {/* --- PERFIL DESKTOP (Escondido no Mobile) --- */}
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
+                  {userRole === 'admin' && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild><Link to="/admin/dashboard">Painel Admin</Link></DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer">Sair</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" asChild>
+                  <Link to="/login"><LogIn className="mr-2 h-4 w-4" /> Entrar</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/login"><UserPlus className="mr-2 h-4 w-4" /> Cadastre-se</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* --- MENU MOBILE (TRÊS PONTINHOS) --- */}
+          {/* Só aparece em telas pequenas (md:hidden) */}
+          <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                  <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Menu</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile">Meu Perfil</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  {/* TODO: Criar esta página no futuro */}
-                  <Link to="/my-orders">Meus Pedidos</Link>
-                </DropdownMenuItem>
+                
+                {/* Links de Navegação */}
+                <DropdownMenuItem asChild><Link to="/">Página Inicial</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/catalog">Catálogo</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/cart">Carrinho ({totalItems})</Link></DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
 
-                {/* Mostra um link para o painel de admin se o usuário for um admin */}
-                {userRole === 'admin' && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/dashboard">Painel Admin</Link>
-                    </DropdownMenuItem>
-                  </>
+                {/* Área do Usuário Mobile */}
+                {isAuthenticated ? (
+                    <>
+                        <DropdownMenuLabel>Conta</DropdownMenuLabel>
+                        <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
+                        {userRole === 'admin' && (
+                            <DropdownMenuItem asChild className="text-primary font-medium">
+                                <Link to="/admin/dashboard">Painel Admin</Link>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={logout} className="text-red-600">Sair</DropdownMenuItem>
+                    </>
+                ) : (
+                    <>
+                        <DropdownMenuItem asChild><Link to="/login">Entrar</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link to="/login">Cadastrar-se</Link></DropdownMenuItem>
+                    </>
                 )}
-
-                <DropdownMenuSeparator />
-                {/* O botão de sair não é um Link, ele chama a função 'logout' */}
-                <DropdownMenuItem onClick={logout} className="cursor-pointer">
-                  Sair
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            // SE NÃO ESTIVER LOGADO: MOSTRA OS BOTÕES DE ENTRAR/CADASTRAR
-            <div className="hidden sm:flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link to="/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Entrar
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link to="/login">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Cadastre-se
-                </Link>
-              </Button>
-            </div>
-          )}
+          </div>
+
         </div>
       </div>
     </header>

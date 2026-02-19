@@ -126,6 +126,54 @@ exports.getMyOrders = async (req, res) => {
   }
 };
 
+exports.updateOrder = async (req, res) => {
+  const { id } = req.params;
+  const { status, codigoRastreio } = req.body;
+
+  const VALID_STATUSES = ['PROCESSANDO', 'PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELED'];
+
+  if (status && !VALID_STATUSES.includes(status)) {
+    return res.status(400).json({ message: `Status inválido. Use: ${VALID_STATUSES.join(', ')}` });
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.pedido.findUnique({
+        where: { id },
+        include: { itens: true },
+      });
+
+      if (!order) throw Object.assign(new Error('Pedido não encontrado.'), { statusCode: 404 });
+
+      // Se está cancelando um pedido que não estava cancelado → restaura estoque
+      if (status === 'CANCELED' && order.status !== 'CANCELED') {
+        for (const item of order.itens) {
+          await tx.produto.update({
+            where: { id: item.produtoId },
+            data: { estoque: { increment: item.quantidade } },
+          });
+        }
+      }
+
+      const updatedOrder = await tx.pedido.update({
+        where: { id },
+        data: {
+          ...(status && { status }),
+          ...(codigoRastreio !== undefined && { codigoRastreio }),
+        },
+      });
+
+      return updatedOrder;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao atualizar pedido:', error);
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ message: error.message || 'Erro ao atualizar pedido.' });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   const { id } = req.params;
   try {

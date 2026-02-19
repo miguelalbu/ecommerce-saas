@@ -14,4 +14,7 @@ router.get('/', protect, authorize('ADMIN'), orderController.getAllOrders);
 // Apenas Admin pode criar pedido manualmente por essa rota (Checkout é em outra rota)
 router.post('/', protect, authorize('ADMIN'), orderController.createOrder);
 
+// Apenas Admin pode atualizar status e código de rastreio
+router.put('/:id', protect, authorize('ADMIN'), orderController.updateOrder);
+
 module.exports = router;

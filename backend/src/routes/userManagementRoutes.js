@@ -3,8 +3,12 @@ const router = express.Router();
 const userManagementController = require('../controllers/userManagementController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-router.get('/', protect, authorize('ADMIN'), userManagementController.getAllUsers);
-router.delete('/users/:id', protect, authorize('ADMIN'), userManagementController.deleteUser);
-router.delete('/customers/:id', protect, authorize('ADMIN'), userManagementController.deleteCustomer);
+// Todas as rotas aqui exigem LOGIN (protect) e CARGO DE ADMIN (authorize)
+router.use(protect);
+router.use(authorize('ADMIN'));
+
+router.get('/', userManagementController.getAllUsers);
+router.delete('/users/:id', userManagementController.deleteUser);
+router.delete('/customers/:id', userManagementController.deleteCustomer);
 
 module.exports = router;

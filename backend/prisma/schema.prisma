@@ -20,6 +20,7 @@ model Usuario {
   funcao    String   @default("ADMIN")
   ativo     Boolean  @default(true)
   criadoEm  DateTime @default(now()) @map("criado_em")
+  role  String @default("USER")
 
   @@map("usuarios")
 }
@@ -91,7 +92,7 @@ model Pedido {
   criadoEm       DateTime     @default(now()) @map("criado_em")
   cliente_nome   String?
   codigoRastreio String?      @map("codigo_rastreio")
-
+  observacao String? @db.Text
   cliente        Cliente?      @relation(fields: [clienteId], references: [id])
   clienteId      String?       @map("cliente_id")
 

@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 exports.protect = async (req, res, next) => {
   let token;
@@ -8,36 +10,60 @@ exports.protect = async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
-      // 1. Pega o token
+      // 1. Pega o token do cabeçalho
       token = req.headers.authorization.split(' ')[1];
 
-      // 2. Decodifica
+      // 2. Decodifica o token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // 3. Adiciona o usuário ao request
-      // Dica: Se quiser garantir que o usuário ainda existe no banco, você poderia fazer uma busca aqui,
-      // mas apenas 'decoded' já serve para pegar o ID.
-      req.user = decoded; 
+      // 3. Busca o usuário na tabela correta com base no role do token
+      let currentUser;
+
+      if (decoded.role === 'CUSTOMER') {
+        currentUser = await prisma.cliente.findUnique({
+          where: { id: decoded.id },
+          select: { id: true, nome: true, email: true }
+        });
+        if (currentUser) currentUser.role = 'CUSTOMER';
+      } else {
+        currentUser = await prisma.usuario.findUnique({
+          where: { id: decoded.id },
+          select: { id: true, nome: true, email: true, funcao: true }
+        });
+        if (currentUser) currentUser.role = currentUser.funcao;
+      }
+
+      // 4. Verifica se o usuário ainda existe
+      if (!currentUser) {
+        return res.status(401).json({
+          message: 'O usuário dono deste token não existe mais.'
+        });
+      }
+
+      // 5. Adiciona o usuário ao request
+      req.user = currentUser;
       
-      // 4. Passa para o próximo controller
-      return next(); 
+      return next();
 
     } catch (error) {
-      console.error(error);
-      return res.status(401).json({ message: 'Não autorizado, token falhou.' });
+      console.error("Erro de autenticação:", error.message);
+      return res.status(401).json({ message: 'Não autorizado, token inválido ou expirado.' });
     }
   }
 
   if (!token) {
-    return res.status(401).json({ message: 'Não autorizado, sem token.' });
+    return res.status(401).json({ message: 'Não autorizado, login necessário.' });
   }
 };
 
+// Middleware para restringir acesso a certos cargos
+// Exemplo de uso nas rotas: authorize('ADMIN', 'GERENTE')
 exports.authorize = (...roles) => {
   return (req, res, next) => {
+    // Verifica se o role do usuário está na lista de roles permitidos
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
-        message: `Acesso negado. A função '${req.user?.role}' não tem permissão.`
+        message: 'Acesso negado. Você não tem permissão de Administrador.'
       });
     }
     next();

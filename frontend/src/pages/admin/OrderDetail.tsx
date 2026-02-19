@@ -1,40 +1,40 @@
+// src/pages/admin/OrderDetails.tsx
+
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getOrderById } from '@/services/apiService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'; // Importei Mutation/Client
+import { getOrderById, updateOrder } from '@/services/apiService'; // Importe updateOrder
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast'; // Import Toast
+import { 
+    ArrowLeft, MapPin, Store, Truck, User, 
+    CheckCircle, XCircle, Clock, Package 
+} from 'lucide-react';
 
-// Funções de formatação
-const formatCurrency = (value: number) => 
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+const formatCurrency = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
 
-const formatDate = (dateString: string) => 
-  new Date(dateString).toLocaleDateString('pt-BR', { 
-    day: '2-digit', month: '2-digit', year: 'numeric', 
-    hour: '2-digit', minute: '2-digit' 
-  });
-
-// Função auxiliar para cor do status (Mesma lógica da lista)
 const getStatusConfig = (status: string) => {
-  const normalizedStatus = status ? status.toUpperCase() : "UNKNOWN";
-  switch (normalizedStatus) {
-    case 'PAID': return { label: 'PAGO', className: 'bg-green-600 hover:bg-green-700 text-white' };
-    case 'PENDING': return { label: 'PENDENTE', className: 'bg-red-500 hover:bg-red-600 text-white' };
-    case 'PROCESSANDO': return { label: 'PROCESSANDO', className: 'bg-yellow-500 hover:bg-yellow-600 text-black' };
-    case 'SHIPPED': return { label: 'ENVIADO', className: 'bg-blue-500 hover:bg-blue-600 text-white' };
-    case 'DELIVERED': return { label: 'ENTREGUE', className: 'bg-emerald-600 hover:bg-emerald-700 text-white' };
-    case 'CANCELED': return { label: 'CANCELADO', className: 'bg-gray-500 hover:bg-gray-600 text-white' };
-    default: return { label: normalizedStatus, className: 'bg-gray-400 text-white' };
+  const s = status ? status.toUpperCase() : "";
+  switch (s) {
+    case 'PAID': return { label: 'PAGO', color: 'bg-green-600' };
+    case 'PENDING': return { label: 'PENDENTE', color: 'bg-red-500' };
+    case 'PROCESSANDO': return { label: 'PROCESSANDO', color: 'bg-yellow-500 text-black' };
+    case 'SHIPPED': return { label: 'ENVIADO', color: 'bg-blue-500' };
+    case 'DELIVERED': return { label: 'ENTREGUE', color: 'bg-emerald-600' };
+    case 'CANCELED': return { label: 'CANCELADO', color: 'bg-gray-500' };
+    default: return { label: s, color: 'bg-gray-400' };
   }
 };
 
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>(); 
   const { token } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: order, isLoading, error } = useQuery({
     queryKey: ['order', id],
@@ -42,147 +42,147 @@ const OrderDetail = () => {
     enabled: !!id && !!token,
   });
 
-  if (isLoading) return <div className="p-8 text-center">Carregando detalhes do pedido...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">Erro: {(error as Error).message}</div>;
+  // Mutação para trocar status
+  const updateStatusMutation = useMutation({
+    mutationFn: (newStatus: string) => updateOrder(id!, { status: newStatus }, token!),
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['order', id] });
+        toast({ title: "Status atualizado com sucesso!" });
+    },
+    onError: () => toast({ title: "Erro ao atualizar status", variant: "destructive" })
+  });
+
+  if (isLoading) return <div className="p-8 text-center">Carregando...</div>;
   if (!order) return <div className="p-8 text-center">Pedido não encontrado.</div>;
 
   const statusInfo = getStatusConfig(order.status);
+  
+  // Lógica para detectar se é Retirada ou Entrega baseada na observação (que salvamos no checkout)
+  const isPickup = order.observacao?.includes("[RETIRADA");
+  const deliveryInfo = order.observacao || "Sem informações de entrega registradas.";
 
   return (
-    <div className="animate-in fade-in duration-500">
-        <Button variant="ghost" asChild className="mb-6 pl-0 hover:bg-transparent hover:text-primary">
-            <Link to="/admin/orders" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" /> 
-                Voltar para Pedidos
-            </Link>
-        </Button>
-        
-      <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-                Detalhes do Pedido
-                <Badge className={`${statusInfo.className} border-none`}>{statusInfo.label}</Badge>
-            </h1>
-            <p className="text-muted-foreground mt-1">ID: #{order.id.substring(0, 8).toUpperCase()}</p>
-          </div>
-          <div className="text-right text-sm text-muted-foreground">
-             Realizado em: {formatDate(order.criadoEm)}
-          </div>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* Coluna da Esquerda (Itens) */}
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader><CardTitle>Itens do Pedido</CardTitle></CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Produto</TableHead>
-                    <TableHead>Qtd.</TableHead>
-                    <TableHead>Preço Unit.</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {/* Verifica se existem itens e renderiza */}
-                  {order.itens && order.itens.length > 0 ? (
-                      order.itens.map((item: any) => (
-                        <TableRow key={item.id}>
-                            <TableCell className="font-medium">
-                                {item.produto?.nome || "Produto Removido/Indisponível"}
-                            </TableCell>
-                            <TableCell>{item.quantidade}</TableCell>
-                            <TableCell>
-                                {formatCurrency(Number(item.precoNoMomentoDaCompra || item.precoUnitario || 0))}
-                            </TableCell>
-                            <TableCell className="text-right font-bold">
-                                {formatCurrency(Number(item.precoNoMomentoDaCompra || item.precoUnitario || 0) * item.quantidade)}
-                            </TableCell>
-                        </TableRow>
-                      ))
-                  ) : (
-                      // Fallback visual caso não tenha itens (ex: dados antigos)
-                      <TableRow>
-                          <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
-                              Detalhes dos itens não disponíveis.
-                          </TableCell>
-                      </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          
-          {/* Se houver observação, mostra aqui */}
-          {order.observacao && (
-            <Card>
-                <CardHeader><CardTitle className="text-base">Observações</CardTitle></CardHeader>
-                <CardContent>
-                    <p className="text-sm text-gray-700">{order.observacao}</p>
-                </CardContent>
-            </Card>
-          )}
+    <div className="animate-in fade-in duration-500 max-w-6xl mx-auto p-4">
+        {/* Topo */}
+        <div className="flex items-center gap-4 mb-6">
+            <Button variant="outline" size="icon" asChild>
+                <Link to="/admin/orders"><ArrowLeft className="h-4 w-4" /></Link>
+            </Button>
+            <div>
+                <h1 className="text-2xl font-bold flex items-center gap-3">
+                    Pedido #{order.id.substring(0, 8).toUpperCase()}
+                    <Badge className={`${statusInfo.color} border-none`}>{statusInfo.label}</Badge>
+                </h1>
+                <p className="text-sm text-muted-foreground">Realizado em: {formatDate(order.criadoEm)}</p>
+            </div>
         </div>
 
-        {/* Coluna da Direita (Resumo e Cliente) */}
-        <div className="space-y-6">
-          {/* Resumo Financeiro */}
-          <Card>
-            <CardHeader><CardTitle>Resumo Financeiro</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm"><span>Subtotal</span> <span>{formatCurrency(Number(order.valor_total))}</span></div>
-              <div className="flex justify-between text-sm"><span>Frete</span> <span>R$ 0,00</span></div>
-              <div className="border-t pt-4 flex justify-between font-bold text-lg text-emerald-700">
-                  <span>Total</span> <span>{formatCurrency(Number(order.valor_total))}</span>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid lg:grid-cols-3 gap-6">
+            {/* Coluna Esquerda: Itens e Ações */}
+            <div className="lg:col-span-2 space-y-6">
+                
+                {/* AÇÕES RÁPIDAS (Controle Total) */}
+                <Card className="bg-muted/20">
+                    <CardHeader className="pb-3"><CardTitle className="text-sm font-bold uppercase text-muted-foreground">Gerenciar Pedido</CardTitle></CardHeader>
+                    <CardContent className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200" onClick={() => updateStatusMutation.mutate('PAID')}>
+                            <CheckCircle className="mr-2 h-4 w-4" /> Marcar Pago
+                        </Button>
+                        <Button size="sm" variant="outline" className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200" onClick={() => updateStatusMutation.mutate('SHIPPED')}>
+                            <Truck className="mr-2 h-4 w-4" /> Marcar Enviado
+                        </Button>
+                        <Button size="sm" variant="outline" className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200" onClick={() => updateStatusMutation.mutate('DELIVERED')}>
+                            <Package className="mr-2 h-4 w-4" /> Marcar Entregue
+                        </Button>
+                        <Button size="sm" variant="outline" className="bg-red-50 hover:bg-red-100 text-red-700 border-red-200" onClick={() => updateStatusMutation.mutate('CANCELED')}>
+                            <XCircle className="mr-2 h-4 w-4" /> Cancelar
+                        </Button>
+                    </CardContent>
+                </Card>
 
-          {/* Informações do Cliente (COM A CORREÇÃO DE TELA BRANCA) */}
-          <Card>
-            <CardHeader><CardTitle>Cliente</CardTitle></CardHeader>
-            <CardContent className="space-y-3 text-sm">
-                {order.cliente ? (
-                    // Caso 1: Venda Online (Cliente existe no banco)
-                    <>
-                        <div>
-                            <span className="font-semibold block">Nome:</span>
-                            <span>{order.cliente.nome} {order.cliente.sobrenome}</span>
+                {/* TABELA DE ITENS */}
+                <Card>
+                    <CardHeader><CardTitle>Itens do Pedido</CardTitle></CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>Qtd.</TableHead>
+                                    <TableHead>Preço Unit.</TableHead>
+                                    <TableHead className="text-right">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {order.itens && order.itens.length > 0 ? (
+                                    order.itens.map((item: any) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="font-medium">{item.produto?.nome || "Produto Indisponível"}</TableCell>
+                                            <TableCell>{item.quantidade}</TableCell>
+                                            <TableCell>{formatCurrency(Number(item.precoNoMomentoDaCompra || item.precoUnitario))}</TableCell>
+                                            <TableCell className="text-right font-bold">{formatCurrency(Number(item.precoNoMomentoDaCompra || item.precoUnitario) * item.quantidade)}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow><TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Nenhum item encontrado.</TableCell></TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Coluna Direita: Informações de Entrega e Cliente */}
+            <div className="space-y-6">
+                {/* CARD DE ENTREGA / RETIRADA (DESTAQUE) */}
+                <Card className={`border-l-4 ${isPickup ? 'border-l-purple-500' : 'border-l-blue-500'}`}>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            {isPickup ? <Store className="text-purple-600" /> : <Truck className="text-blue-600" />}
+                            {isPickup ? "Retirada em Loja" : "Entrega em Domicílio"}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="bg-muted/40 p-3 rounded-md text-sm">
+                            <p className="font-medium mb-1">Detalhes:</p>
+                            {/* Mostra a string formatada que salvamos no checkout */}
+                            <p className="text-gray-700 whitespace-pre-wrap">{deliveryInfo}</p>
                         </div>
-                        <div>
-                            <span className="font-semibold block">Email:</span>
-                            <span className="text-blue-600">{order.cliente.email}</span>
+                    </CardContent>
+                </Card>
+
+                {/* Resumo Financeiro */}
+                <Card>
+                    <CardHeader><CardTitle>Financeiro</CardTitle></CardHeader>
+                    <CardContent className="space-y-2">
+                        <div className="flex justify-between text-sm"><span>Subtotal</span> <span>{formatCurrency(Number(order.valor_total))}</span></div>
+                        <div className="flex justify-between text-sm"><span>Frete</span> <span>R$ 0,00</span></div>
+                        <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
+                            <span>Total</span> <span className="text-emerald-600">{formatCurrency(Number(order.valor_total))}</span>
                         </div>
-                        <div>
-                            <span className="font-semibold block">CPF:</span>
-                            <span>{order.cliente.cpf || '-'}</span>
-                        </div>
-                        <div>
-                            <span className="font-semibold block">Telefone:</span>
-                            <span>{order.cliente.telefone || '-'}</span>
-                        </div>
-                    </>
-                ) : (
-                    // Caso 2: Venda Balcão (Cliente é null)
-                    <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                        <Badge variant="secondary" className="mb-2 bg-yellow-200 text-yellow-800 hover:bg-yellow-200">
-                            Venda de Balcão
-                        </Badge>
-                        <div>
-                            <span className="font-semibold block text-gray-600">Identificação:</span>
-                            <span className="text-lg font-medium">{order.cliente_nome || 'Consumidor Final'}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                            * Venda realizada presencialmente ou sem cadastro completo.
-                        </p>
-                    </div>
-                )}
-            </CardContent>
-          </Card>
+                    </CardContent>
+                </Card>
+
+                {/* Dados do Cliente */}
+                <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-4 w-4" /> Cliente</CardTitle></CardHeader>
+                    <CardContent className="text-sm space-y-2">
+                        {order.cliente ? (
+                            <>
+                                <p><span className="font-semibold">Nome:</span> {order.cliente.nome} {order.cliente.sobrenome}</p>
+                                <p><span className="font-semibold">Email:</span> <a href={`mailto:${order.cliente.email}`} className="text-blue-600 hover:underline">{order.cliente.email}</a></p>
+                                <p><span className="font-semibold">Tel:</span> {order.cliente.telefone || '-'}</p>
+                            </>
+                        ) : (
+                            <div className="text-muted-foreground italic">
+                                Cliente não cadastrado (Venda Balcão ou Convidado).
+                                <br/>Nome informado: <span className="font-medium text-foreground">{order.cliente_nome}</span>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
-      </div>
     </div>
   );
 };

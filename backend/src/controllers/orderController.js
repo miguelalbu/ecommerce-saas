@@ -132,7 +132,15 @@ exports.getOrderById = async (req, res) => {
     const order = await prisma.pedido.findUnique({
       where: { id },
       include: {
-        cliente: true, 
+        cliente: true, // Traz os dados do cliente
+        
+        // --- ADICIONE ISTO AQUI ---
+        itens: {
+          include: {
+            produto: true // Entra dentro de cada item e busca o nome/foto do produto
+          }
+        }
+        // --------------------------
       },
     });
 

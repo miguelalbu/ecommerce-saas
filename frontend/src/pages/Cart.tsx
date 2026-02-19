@@ -1,3 +1,4 @@
+// src/pages/Cart.tsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -14,7 +15,13 @@ const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
   const [cep, setCep] = useState("");
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // PROTEÇÃO 1: Evita NaN no cálculo do total
+  const subtotal = cartItems.reduce((sum, item) => {
+    const price = Number(item.price || 0);
+    const qtd = Number(item.quantity || 1);
+    return sum + (price * qtd);
+  }, 0);
+
   const shipping = subtotal > 199 ? 0 : 15.90;
   const total = subtotal + shipping;
 
@@ -41,22 +48,28 @@ const Cart = () => {
             </div>
           ) : (
             <div className="grid lg:grid-cols-3 gap-8">
-              {/* Cart Items */}
+              {/* Lista de Itens */}
               <div className="lg:col-span-2 space-y-4 animate-fade-in">
                 {cartItems.map((item) => (
                   <Card key={item.id}>
                     <CardContent className="p-6">
                       <div className="flex gap-4">
                         <img
-                          src={item.image ? `${BACKEND_URL}/${item.image}` : `https://via.placeholder.com/96x96.png?text=Luar`}
+                          src={item.image ? `${BACKEND_URL}/${item.image}` : `https://via.placeholder.com/96x96.png?text=Foto`}
                           alt={item.name}
                           className="w-24 h-24 object-cover rounded-md"
+                          onError={(e) => {
+                            // Fallback se a imagem quebrar
+                            (e.target as HTMLImageElement).src = "https://via.placeholder.com/96x96.png?text=Erro";
+                          }}
                         />
                         
                         <div className="flex-1">
                           <h3 className="font-semibold mb-2">{item.name}</h3>
+                          
+                          {/* PROTEÇÃO 2: Corrige o erro do toFixed */}
                           <p className="text-lg font-bold text-primary mb-4">
-                            R$ {item.price.toFixed(2)}
+                            R$ {Number(item.price || 0).toFixed(2)}
                           </p>
                           
                           <div className="flex items-center justify-between">
@@ -95,13 +108,12 @@ const Cart = () => {
                 ))}
               </div>
 
-              {/* Order Summary */}
+              {/* Resumo do Pedido */}
               <div className="animate-fade-in">
                 <Card className="sticky top-24">
                   <CardContent className="p-6">
                     <h2 className="text-xl font-bold mb-6">Resumo do Pedido</h2>
                     
-                    {/* O restante do seu JSX para o resumo do pedido permanece o mesmo */}
                     <div className="mb-6">
                       <label className="text-sm font-medium mb-2 block">Calcular Frete</label>
                       <div className="flex gap-2">

@@ -3,14 +3,14 @@ const express = require('express');
 const router = express.Router();
 const checkoutController = require('../controllers/checkoutController');
 const { protect } = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const { checkoutSchema } = require('../validators/userValidators');
 
-// Middleware opcional para pegar o usuário se ele estiver logado
+// Middleware opcional: autentica se houver token, mas não bloqueia se não houver
 const getOptionalUser = (req, res, next) => {
-  // Isso apenas chama o 'protect' sem falhar se não houver token.
-  // O 'protect' adiciona req.user se o token for válido.
   protect(req, res, (err) => next());
 };
 
-router.post('/', getOptionalUser, checkoutController.placeOrder);
+router.post('/', getOptionalUser, validate(checkoutSchema), checkoutController.placeOrder);
 
 module.exports = router;

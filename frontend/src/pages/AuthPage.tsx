@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { adminLogin, customerLogin, customerRegister } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
+import { maskCPF, maskPhone, validateRegisterForm, type RegisterErrors } from "@/lib/validators";
 
 interface AuthPageProps {
   userType: 'admin' | 'customer';
@@ -20,8 +21,7 @@ const AuthPage = ({ userType }: AuthPageProps) => {
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Novos estados para os campos do formulário
+
   const [name, setName] = useState("");
   const [sobrenome, setSobrenome] = useState("");
   const [email, setEmail] = useState("");
@@ -32,29 +32,43 @@ const AuthPage = ({ userType }: AuthPageProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [errors, setErrors] = useState<RegisterErrors>({});
+
+  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCpf(maskCPF(e.target.value));
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTelefone(maskPhone(e.target.value));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrors({});
 
     try {
       if (mode === 'login') {
-        const response = userType === 'admin' 
+        const response = userType === 'admin'
           ? await adminLogin(email, password)
           : await customerLogin(email, password);
-        
+
         login(response.token);
         toast({ title: "Login realizado com sucesso!" });
-        
-        const destination = userType === 'admin' ? '/admin/dashboard' : '/';
-        navigate(destination);
+        navigate(userType === 'admin' ? '/admin/dashboard' : '/');
 
-      } else { // Modo de Registro
-        if (password !== confirmPassword) {
-          toast({ title: "Erro", description: "As senhas não coincidem.", variant: "destructive" });
+      } else {
+        // Validação client-side antes de chamar a API
+        const validationErrors = validateRegisterForm({
+          name, sobrenome, email, password, confirmPassword, cpf, telefone,
+        });
+
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
           setIsLoading(false);
           return;
         }
-        
+
         const registerData = { name, sobrenome, email, password, cpf, telefone, dataNascimento, genero };
         await customerRegister(registerData);
 
@@ -84,8 +98,8 @@ const AuthPage = ({ userType }: AuthPageProps) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Lógica para mostrar formulário de LOGIN */}
+
+            {/* FORMULÁRIO DE LOGIN */}
             {mode === 'login' && (
               <>
                 <div>
@@ -99,23 +113,40 @@ const AuthPage = ({ userType }: AuthPageProps) => {
               </>
             )}
 
-            {/* Lógica para mostrar formulário de REGISTRO */}
+            {/* FORMULÁRIO DE REGISTRO */}
             {mode === 'register' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Nome</Label>
-                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <Label htmlFor="name">Nome *</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className={errors.name ? "border-red-500" : ""}
+                      required
+                    />
+                    {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
                   </div>
                   <div>
                     <Label htmlFor="sobrenome">Sobrenome</Label>
-                    <Input id="sobrenome" value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} required />
+                    <Input id="sobrenome" value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} />
                   </div>
                 </div>
+
                 <div>
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Label htmlFor="email">E-mail *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={errors.email ? "border-red-500" : ""}
+                    required
+                  />
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="dataNascimento">Data de nascimento</Label>
@@ -133,24 +164,56 @@ const AuthPage = ({ userType }: AuthPageProps) => {
                     </Select>
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="cpf">CPF</Label>
-                    <Input id="cpf" value={cpf} onChange={(e) => setCpf(e.target.value)} />
+                    <Input
+                      id="cpf"
+                      value={cpf}
+                      onChange={handleCPFChange}
+                      placeholder="000.000.000-00"
+                      className={errors.cpf ? "border-red-500" : ""}
+                    />
+                    {errors.cpf && <p className="text-xs text-red-500 mt-1">{errors.cpf}</p>}
                   </div>
                   <div>
                     <Label htmlFor="telefone">Telefone</Label>
-                    <Input id="telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+                    <Input
+                      id="telefone"
+                      value={telefone}
+                      onChange={handlePhoneChange}
+                      placeholder="(00) 00000-0000"
+                      className={errors.telefone ? "border-red-500" : ""}
+                    />
+                    {errors.telefone && <p className="text-xs text-red-500 mt-1">{errors.telefone}</p>}
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="password">Senha</Label>
-                    <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <Label htmlFor="password">Senha *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={errors.password ? "border-red-500" : ""}
+                      required
+                    />
+                    {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
                   </div>
                   <div>
-                    <Label htmlFor="confirmPassword">Confirmar senha</Label>
-                    <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                    <Label htmlFor="confirmPassword">Confirmar senha *</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={errors.confirmPassword ? "border-red-500" : ""}
+                      required
+                    />
+                    {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
                   </div>
                 </div>
               </div>
@@ -166,14 +229,14 @@ const AuthPage = ({ userType }: AuthPageProps) => {
               {mode === 'login' ? (
                 <>
                   Não tem uma conta?{" "}
-                  <Button variant="link" onClick={() => setMode('register')} className="p-0">
+                  <Button variant="link" onClick={() => { setMode('register'); setErrors({}); }} className="p-0">
                     Cadastre-se
                   </Button>
                 </>
               ) : (
                 <>
                   Já tem uma conta?{" "}
-                  <Button variant="link" onClick={() => setMode('login')} className="p-0">
+                  <Button variant="link" onClick={() => { setMode('login'); setErrors({}); }} className="p-0">
                     Voltar para o login
                   </Button>
                 </>

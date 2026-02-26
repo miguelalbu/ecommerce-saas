@@ -13,13 +13,15 @@ datasource db {
 // MODELOS DA APLICAÇÃO
 
 model Usuario {
-  id        String   @id @default(uuid())
-  nome      String
-  email     String   @unique
-  senhaHash String   @map("senha_hash")
-  funcao    String   @default("ADMIN")
-  ativo     Boolean  @default(true)
-  criadoEm  DateTime @default(now()) @map("criado_em")
+  id               String    @id @default(uuid())
+  nome             String
+  email            String    @unique
+  senhaHash        String    @map("senha_hash")
+  funcao           String    @default("ADMIN")
+  ativo            Boolean   @default(true)
+  criadoEm         DateTime  @default(now()) @map("criado_em")
+  resetToken       String?   @map("reset_token")
+  resetTokenExpiry DateTime? @map("reset_token_expiry")
 
   @@map("usuarios")
 }
@@ -53,18 +55,20 @@ model Produto {
 }
 
 model Cliente {
-  id             String     @id @default(uuid())
-  nome           String
-  sobrenome      String?
-  email          String     @unique
-  cpf            String?    @unique
-  telefone       String?
-  dataNascimento DateTime?  @map("data_nascimento")
-  genero         String?
-  senhaHash      String     @map("senha_hash")
-  criadoEm       DateTime   @default(now()) @map("criado_em")
-  pedidos        Pedido[]
-  enderecos      Endereco[]
+  id               String     @id @default(uuid())
+  nome             String
+  sobrenome        String?
+  email            String     @unique
+  cpf              String?    @unique
+  telefone         String?
+  dataNascimento   DateTime?  @map("data_nascimento")
+  genero           String?
+  senhaHash        String     @map("senha_hash")
+  criadoEm         DateTime   @default(now()) @map("criado_em")
+  resetToken       String?    @map("reset_token")
+  resetTokenExpiry DateTime?  @map("reset_token_expiry")
+  pedidos          Pedido[]
+  enderecos        Endereco[]
 
   @@map("clientes")
 }

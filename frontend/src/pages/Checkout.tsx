@@ -1,6 +1,6 @@
 // src/pages/Checkout.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getProfile, getAddresses, placeOrder } from "@/services/apiService";
-import { Store, Truck, MapPin } from "lucide-react";
+import { Store, Truck, MapPin, Loader2 } from "lucide-react";
+import { useViaCEP } from "@/hooks/useViaCEP";
 import {
   maskCPF,
   maskPhone,
@@ -71,6 +72,11 @@ const Checkout = () => {
   // Campos controlados com máscara (endereço)
   const [cepValue, setCepValue] = useState('');
   const [estadoValue, setEstadoValue] = useState('');
+  const [ruaValue, setRuaValue] = useState('');
+  const [bairroValue, setBairroValue] = useState('');
+  const [cidadeValue, setCidadeValue] = useState('');
+
+  const { isLoadingCEP, cepNotFound, fetchAddressByCEP, resetCEPState } = useViaCEP();
 
   // Erros de validação
   const [guestErrors, setGuestErrors] = useState<CheckoutGuestErrors>({});
@@ -99,7 +105,26 @@ const Checkout = () => {
     setGuestErrors({});
     setCepValue('');
     setEstadoValue('');
+    setRuaValue('');
+    setBairroValue('');
+    setCidadeValue('');
+    resetCEPState();
   }, [deliveryMethod]);
+
+  // Busca endereço via ViaCEP quando CEP atinge 8 dígitos
+  const handleCEPChange = useCallback(async (maskedCep: string) => {
+    setCepValue(maskedCep);
+    const digits = maskedCep.replace(/\D/g, '');
+    if (digits.length === 8) {
+      const address = await fetchAddressByCEP(maskedCep);
+      if (address) {
+        setRuaValue(address.rua);
+        setBairroValue(address.bairro);
+        setCidadeValue(address.cidade);
+        setEstadoValue(address.estado);
+      }
+    }
+  }, [fetchAddressByCEP]);
 
   const checkoutMutation = useMutation({
     mutationFn: (checkoutData: any) => placeOrder(checkoutData, token),
@@ -391,13 +416,19 @@ const Checkout = () => {
                           <div className="grid sm:grid-cols-3 gap-4">
                             <div>
                               <Label htmlFor="cep">CEP *</Label>
-                              <Input
-                                id="cep" name="cep"
-                                value={cepValue}
-                                onChange={(e) => setCepValue(maskCEP(e.target.value))}
-                                placeholder="00000-000"
-                                className={addressErrors.cep ? "border-red-500" : ""}
-                              />
+                              <div className="relative">
+                                <Input
+                                  id="cep" name="cep"
+                                  value={cepValue}
+                                  onChange={(e) => handleCEPChange(maskCEP(e.target.value))}
+                                  placeholder="00000-000"
+                                  className={addressErrors.cep ? "border-red-500" : ""}
+                                />
+                                {isLoadingCEP && (
+                                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                                )}
+                              </div>
+                              {cepNotFound && <p className="text-xs text-red-500 mt-1">CEP não encontrado.</p>}
                               {addressErrors.cep && <p className="text-xs text-red-500 mt-1">{addressErrors.cep}</p>}
                             </div>
                           </div>
@@ -407,6 +438,8 @@ const Checkout = () => {
                             <Label htmlFor="rua">Rua *</Label>
                             <Input
                               id="rua" name="rua" required
+                              value={ruaValue}
+                              onChange={(e) => setRuaValue(e.target.value)}
                               className={addressErrors.rua ? "border-red-500" : ""}
                             />
                             {addressErrors.rua && <p className="text-xs text-red-500 mt-1">{addressErrors.rua}</p>}
@@ -434,6 +467,8 @@ const Checkout = () => {
                               <Label htmlFor="bairro">Bairro *</Label>
                               <Input
                                 id="bairro" name="bairro" required
+                                value={bairroValue}
+                                onChange={(e) => setBairroValue(e.target.value)}
                                 className={addressErrors.bairro ? "border-red-500" : ""}
                               />
                               {addressErrors.bairro && <p className="text-xs text-red-500 mt-1">{addressErrors.bairro}</p>}
@@ -442,6 +477,8 @@ const Checkout = () => {
                               <Label htmlFor="cidade">Cidade *</Label>
                               <Input
                                 id="cidade" name="cidade" required
+                                value={cidadeValue}
+                                onChange={(e) => setCidadeValue(e.target.value)}
                                 className={addressErrors.cidade ? "border-red-500" : ""}
                               />
                               {addressErrors.cidade && <p className="text-xs text-red-500 mt-1">{addressErrors.cidade}</p>}

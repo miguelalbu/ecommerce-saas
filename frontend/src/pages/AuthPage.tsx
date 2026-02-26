@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -102,6 +102,11 @@ const AuthPage = () => {
                 <div>
                   <Label htmlFor="password">Senha</Label>
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  <div className="text-right mt-1">
+                    <Link to="/forgot-password" className="text-xs text-muted-foreground hover:underline">
+                      Esqueci minha senha
+                    </Link>
+                  </div>
                 </div>
               </>
             )}

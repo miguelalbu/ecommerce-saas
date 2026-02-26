@@ -54,6 +54,24 @@ export const customerRegister = async (data: RegisterData) => {
   return handleResponse(response);
 };
 
+export const forgotPassword = async (email: string) => {
+  const response = await fetch(`${BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(response);
+};
+
+export const resetPassword = async (token: string, type: string, password: string) => {
+  const response = await fetch(`${BASE_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, type, password }),
+  });
+  return handleResponse(response);
+};
+
 // --- DASHBOARD ---
 
 export const getDashboardSummary = async (token: string) => {

@@ -14,6 +14,8 @@ import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Products from "./pages/admin/Products";
@@ -56,8 +58,10 @@ const App = () => (
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/my-orders/:id" element={<ClientOrderDetail />} />
 
-              {/* Rota de Autenticação */}
+              {/* Rotas de Autenticação */}
               <Route path="/login" element={<AuthPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Rotas do Painel Administrativo (Protegidas) */}
               <Route path="/admin" element={<AdminLayout />}>

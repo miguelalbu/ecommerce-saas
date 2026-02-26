@@ -9,9 +9,9 @@ services:
     
     # Variáveis de ambiente para configurar o banco na primeira inicialização
     environment:
-      POSTGRES_USER: docker_user
-      POSTGRES_PASSWORD: docker_password
-      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: ${POSTGRES_USER} # Usando variável de ambiente do arquivo .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Usando variável de ambiente do arquivo .env
+      POSTGRES_DB: ${POSTGRES_DB} # Usando variável de ambiente do arquivo .env
       
     # Mapeia a porta 5432 do contêiner para a porta 5432 da sua máquina
     # Isso permite que você se conecte ao banco de fora do Docker (com DBeaver, etc.)

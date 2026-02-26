@@ -57,12 +57,14 @@ export const Header = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
-                  {userRole === 'admin' && (
+                  {userRole === 'ADMIN' ? (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard">Painel Admin</Link>
+                    </DropdownMenuItem>
+                  ) : (
                     <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild><Link to="/admin/dashboard">Painel Admin</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
@@ -105,12 +107,15 @@ export const Header = () => {
                 {isAuthenticated ? (
                     <>
                         <DropdownMenuLabel>Conta</DropdownMenuLabel>
-                        <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
-                        {userRole === 'admin' && (
+                        {userRole === 'ADMIN' ? (
                             <DropdownMenuItem asChild className="text-primary font-medium">
                                 <Link to="/admin/dashboard">Painel Admin</Link>
                             </DropdownMenuItem>
+                        ) : (
+                            <>
+                                <DropdownMenuItem asChild><Link to="/profile">Meu Perfil</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link to="/my-orders">Meus Pedidos</Link></DropdownMenuItem>
+                            </>
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={logout} className="text-red-600">Sair</DropdownMenuItem>

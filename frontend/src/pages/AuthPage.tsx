@@ -3,18 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { adminLogin, customerLogin, customerRegister } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
 import { maskCPF, maskPhone, validateRegisterForm, type RegisterErrors } from "@/lib/validators";
 
-interface AuthPageProps {
-  userType: 'admin' | 'customer';
-}
-
-const AuthPage = ({ userType }: AuthPageProps) => {
+const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login } = useAuth();
@@ -34,14 +30,6 @@ const AuthPage = ({ userType }: AuthPageProps) => {
 
   const [errors, setErrors] = useState<RegisterErrors>({});
 
-  const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCpf(maskCPF(e.target.value));
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTelefone(maskPhone(e.target.value));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -49,13 +37,20 @@ const AuthPage = ({ userType }: AuthPageProps) => {
 
     try {
       if (mode === 'login') {
-        const response = userType === 'admin'
-          ? await adminLogin(email, password)
-          : await customerLogin(email, password);
+        let response;
+        let isAdmin = false;
+
+        // Tenta autenticar como admin; se falhar, tenta como cliente
+        try {
+          response = await adminLogin(email, password);
+          isAdmin = true;
+        } catch {
+          response = await customerLogin(email, password);
+        }
 
         login(response.token);
         toast({ title: "Login realizado com sucesso!" });
-        navigate(userType === 'admin' ? '/admin/dashboard' : '/');
+        navigate(isAdmin ? '/admin/dashboard' : '/');
 
       } else {
         // Validação client-side antes de chamar a API
@@ -86,15 +81,13 @@ const AuthPage = ({ userType }: AuthPageProps) => {
     }
   };
 
-  const title = userType === 'admin' ? "Painel do Administrador" : (mode === 'login' ? "Faça seu login" : "Criar uma conta");
-  const description = userType === 'admin' ? "Entre com suas credenciais" : "";
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-luar-green p-4">
       <Card className="w-full max-w-lg animate-scale-in">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
+          <CardTitle className="text-2xl">
+            {mode === 'login' ? "Faça seu login" : "Criar uma conta"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -171,7 +164,7 @@ const AuthPage = ({ userType }: AuthPageProps) => {
                     <Input
                       id="cpf"
                       value={cpf}
-                      onChange={handleCPFChange}
+                      onChange={(e) => setCpf(maskCPF(e.target.value))}
                       placeholder="000.000.000-00"
                       className={errors.cpf ? "border-red-500" : ""}
                     />
@@ -182,7 +175,7 @@ const AuthPage = ({ userType }: AuthPageProps) => {
                     <Input
                       id="telefone"
                       value={telefone}
-                      onChange={handlePhoneChange}
+                      onChange={(e) => setTelefone(maskPhone(e.target.value))}
                       placeholder="(00) 00000-0000"
                       className={errors.telefone ? "border-red-500" : ""}
                     />
@@ -224,8 +217,7 @@ const AuthPage = ({ userType }: AuthPageProps) => {
             </Button>
           </form>
 
-          {userType === 'customer' && (
-            <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm">
               {mode === 'login' ? (
                 <>
                   Não tem uma conta?{" "}
@@ -241,8 +233,7 @@ const AuthPage = ({ userType }: AuthPageProps) => {
                   </Button>
                 </>
               )}
-            </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>

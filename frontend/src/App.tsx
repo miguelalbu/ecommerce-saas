@@ -56,9 +56,8 @@ const App = () => (
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/my-orders/:id" element={<ClientOrderDetail />} />
 
-              {/* Rotas de Autenticação */}
-              <Route path="/login" element={<AuthPage userType="customer" />} />
-              <Route path="/admin/login" element={<AuthPage userType="admin" />} />
+              {/* Rota de Autenticação */}
+              <Route path="/login" element={<AuthPage />} />
 
               {/* Rotas do Painel Administrativo (Protegidas) */}
               <Route path="/admin" element={<AdminLayout />}>

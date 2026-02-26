@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   token: string | null;
-  userRole: 'admin' | 'customer' | null;
+  userRole: 'ADMIN' | 'CUSTOMER' | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (token: string) => void;
@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<'admin' | 'customer' | null>(null);
+  const [userRole, setUserRole] = useState<'ADMIN' | 'CUSTOMER' | null>(null);
   const [isLoading, setIsLoading] = useState(true); 
   const navigate = useNavigate();
 
@@ -23,17 +23,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
-
       try {
         const payload = JSON.parse(atob(storedToken.split('.')[1]));
         setUserRole(payload.role); // Extrai 'ADMIN' ou 'CUSTOMER'
       } catch (e) {
         console.error("Token salvo é inválido:", e);
-        localStorage.removeItem('token'); // Limpa o token inválido
-      } finally {
-        setIsLoading(false); 
+        localStorage.removeItem('token');
       }
     }
+    setIsLoading(false);
   }, []);
 
   const login = (newToken: string) => {

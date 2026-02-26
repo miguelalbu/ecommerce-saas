@@ -40,8 +40,8 @@ exports.getAllProducts = async (req, res) => {
 };
 
 exports.createProduct = async (req, res) => {
-  const { name, description, price, stock, categoryId, isFeatured } = req.body;
-  
+  const { name, description, price, purchasePrice, stock, categoryId, isFeatured } = req.body;
+
   const imageUrl = req.file ? `uploads/${req.file.filename}` : null;
 
   try {
@@ -50,6 +50,7 @@ exports.createProduct = async (req, res) => {
         nome: name,
         descricao: description,
         preco: parseFloat(price),
+        precoCompra: purchasePrice ? parseFloat(purchasePrice) : null,
         estoque: parseInt(stock, 10),
         categoriaId: categoryId,
         imageUrl: imageUrl,
@@ -107,13 +108,14 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, stock, categoryId } = req.body;
+  const { name, description, price, purchasePrice, stock, categoryId } = req.body;
 
   // Objeto que conterá apenas os dados a serem atualizados
   const dataToUpdate = {
     nome: name,
     descricao: description,
     preco: parseFloat(price),
+    precoCompra: purchasePrice ? parseFloat(purchasePrice) : null,
     estoque: parseInt(stock, 10),
     categoriaId: categoryId,
   };

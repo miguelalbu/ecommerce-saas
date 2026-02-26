@@ -29,6 +29,7 @@ type Product = {
   id: string;
   nome: string;
   preco: number;
+  precoCompra: number | null;
   estoque: number;
   categoria: { nome: string };
   imageUrl?: string;
@@ -138,8 +139,13 @@ const Products = () => {
                       <Badge variant="outline">{product.categoria.nome}</Badge>
                       <span>Estoque: {product.estoque}</span>
                       <span className="font-semibold text-foreground">
-                        {formatCurrency(Number(product.preco))}
+                        Preço Venda: {formatCurrency(Number(product.preco))}
                       </span>
+                      {product.precoCompra != null && (
+                        <span className="font-semibold text-muted-foreground">
+                          Preço Compra: {formatCurrency(Number(product.precoCompra))}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2">

@@ -21,12 +21,13 @@ type ProductData = {
     id: string;
     nome: string;
     descricao: string | null;
-    preco: number | string; // Prisma retorna Decimal, convertemos para string no estado
-    estoque: number | string; // Convertido para string no estado
+    preco: number | string;
+    precoCompra: number | string | null;
+    estoque: number | string;
     categoriaId: string;
     isFeatured: boolean | null;
     imageUrl: string | null;
-    categoria: Category; // Adicionado para tipo completo
+    categoria: Category;
 };
 
 
@@ -46,6 +47,7 @@ const ProductForm = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [purchasePrice, setPurchasePrice] = useState('');
     const [stock, setStock] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [isFeatured, setIsFeatured] = useState(false);
@@ -70,8 +72,9 @@ const ProductForm = () => {
         if (isEditMode && productData) {
             setName(productData.nome);
             setDescription(productData.descricao || '');
-            setPrice(String(productData.preco)); // Converte Decimal/Number para string
-            setStock(String(productData.estoque)); // Converte Number para string
+            setPrice(String(productData.preco));
+            setPurchasePrice(productData.precoCompra != null ? String(productData.precoCompra) : '');
+            setStock(String(productData.estoque));
             setCategoryId(productData.categoriaId);
             setIsFeatured(productData.isFeatured || false);
             if (productData.imageUrl) {
@@ -123,6 +126,7 @@ const ProductForm = () => {
         formData.append('name', name);
         formData.append('description', description);
         formData.append('price', price);
+        if (purchasePrice) formData.append('purchasePrice', purchasePrice);
         formData.append('stock', stock);
         formData.append('categoryId', categoryId);
         formData.append('isFeatured', String(isFeatured));
@@ -168,8 +172,12 @@ const ProductForm = () => {
                                 </Select>
                             </div>
                             <div>
-                                <Label htmlFor="price">Preço *</Label>
+                                <Label htmlFor="price">Preço de Venda *</Label>
                                 <Input id="price" type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
+                            </div>
+                            <div>
+                                <Label htmlFor="purchasePrice">Preço de Compra</Label>
+                                <Input id="purchasePrice" type="number" step="0.01" value={purchasePrice} onChange={(e) => setPurchasePrice(e.target.value)} placeholder="Opcional" />
                             </div>
                             <div>
                                 <Label htmlFor="stock">Estoque *</Label>

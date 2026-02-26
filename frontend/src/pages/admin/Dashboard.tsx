@@ -1,7 +1,7 @@
 // /src/admin/Dashboard.tsx
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
+import { Package, ShoppingCart, TrendingUp, Users, Wallet, Percent } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardSummary } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
@@ -51,7 +51,7 @@ const Dashboard = () => {
     <div>
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
-      {/* Cards de Estatísticas */}
+      {/* Cards de Estatísticas Gerais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => (
           <Card key={stat.title} className="animate-fade-in">
@@ -66,6 +66,57 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Cards de Métricas de Estoque */}
+      <h2 className="text-lg font-semibold mb-4 text-muted-foreground">Métricas de Estoque</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="animate-fade-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Receita Potencial do Estoque</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(summary.stats.receitaPotencial)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Se todo o estoque for vendido</p>
+          </CardContent>
+        </Card>
+
+        <Card className="animate-fade-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Investimento em Estoque</CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {summary.stats.investimentoEstoque > 0
+                ? formatCurrency(summary.stats.investimentoEstoque)
+                : <span className="text-muted-foreground text-lg">Sem dados</span>}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Custo total dos produtos em estoque</p>
+          </CardContent>
+        </Card>
+
+        <Card className="animate-fade-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Margem de Lucro Potencial</CardTitle>
+            <Percent className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${summary.stats.margemLucro !== null && summary.stats.margemLucro >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+              {summary.stats.margemLucro !== null
+                ? `${summary.stats.margemLucro}%`
+                : <span className="text-muted-foreground text-lg">Sem dados</span>}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {summary.stats.margemLucro !== null
+                ? `Lucro potencial: ${formatCurrency(summary.stats.lucroPotencial)}`
+                : 'Cadastre o preço de compra nos produtos'}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

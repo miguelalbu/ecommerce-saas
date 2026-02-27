@@ -108,7 +108,7 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, purchasePrice, stock, categoryId } = req.body;
+  const { name, description, price, purchasePrice, stock, categoryId, isFeatured } = req.body;
 
   // Objeto que conterá apenas os dados a serem atualizados
   const dataToUpdate = {
@@ -117,7 +117,8 @@ exports.updateProduct = async (req, res) => {
     preco: parseFloat(price),
     precoCompra: purchasePrice ? parseFloat(purchasePrice) : null,
     estoque: parseInt(stock, 10),
-    categoriaId: categoryId,
+    ...(categoryId && categoryId !== 'undefined' && { categoriaId: categoryId }),
+    isFeatured: isFeatured === 'true' || isFeatured === true,
   };
 
   // Se uma nova imagem foi enviada, adiciona o novo caminho ao objeto de atualização

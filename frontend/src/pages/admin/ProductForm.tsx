@@ -122,6 +122,11 @@ const ProductForm = () => {
              return;
         }
 
+        if (!categoryId) {
+            toast({ title: "Erro", description: "Selecione uma categoria para o produto.", variant: "destructive" });
+            return;
+        }
+
         const formData = new FormData();
         formData.append('name', name);
         formData.append('description', description);
@@ -134,7 +139,6 @@ const ProductForm = () => {
         if (imageFile) {
             formData.append('image', imageFile);
         } else if (!isEditMode) {
-             // Imagem é obrigatória apenas na criação
             toast({ title: "Erro", description: "Por favor, selecione uma imagem.", variant: "destructive" });
             return;
         }

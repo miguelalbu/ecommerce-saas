@@ -5,10 +5,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Link } from "react-router-dom";
-// CORREÇÃO: Garante que todos os ícones necessários estão importados
-import { Sparkles, TruckIcon, Shield, CreditCard } from "lucide-react"; 
+import { Sparkles, TruckIcon, Shield, CreditCard } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, BACKEND_URL } from "@/services/apiService";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 // Imagens da página
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -151,20 +151,43 @@ const Home = () => {
 
           {isLoading && <p className="text-center">Carregando destaques...</p>}
           {error && <p className="text-center text-destructive">Erro ao carregar destaques.</p>}
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {featuredProducts?.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.nome}
-                price={Number(product.preco)}
-                category={product.categoria.nome}
-                image={product.imageUrl}
-                stock={product.estoque}
-              />
-            ))}
-          </div>
+
+          {featuredProducts && featuredProducts.length > 4 ? (
+            <div className="relative px-10 mb-12">
+              <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                <CarouselContent className="-ml-4">
+                  {featuredProducts.map((product) => (
+                    <CarouselItem key={product.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                      <ProductCard
+                        id={product.id}
+                        name={product.nome}
+                        price={Number(product.preco)}
+                        category={product.categoria.nome}
+                        image={product.imageUrl}
+                        stock={product.estoque}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {featuredProducts?.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.nome}
+                  price={Number(product.preco)}
+                  category={product.categoria.nome}
+                  image={product.imageUrl}
+                  stock={product.estoque}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="text-center">
             <Button variant="outline" size="lg" asChild>

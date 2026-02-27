@@ -9,6 +9,7 @@ import { Sparkles, TruckIcon, Shield, CreditCard } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, BACKEND_URL } from "@/services/apiService";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import caricatureJoseane from "@/assets/caricature_joseane.png";
 
 // Imagens da página
 import heroBanner from "@/assets/hero-banner.jpg";
@@ -52,6 +53,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative h-[600px] overflow-hidden">
+        {/* Fundo */}
         <div className="absolute inset-0">
           <img
             src={heroBanner}
@@ -60,20 +62,26 @@ const Home = () => {
           />
           <div className="absolute inset-0 bg-gradient-hero" />
         </div>
+
+        {/* Caricatura — mobile: menor no canto direito / desktop: maior ao centro-direita */}
+        <div className="absolute bottom-0 right-0 h-[55%] opacity-80 lg:right-[15%] lg:h-[105%] lg:opacity-100 pointer-events-none select-none">
+          <img
+            src={caricatureJoseane}
+            alt="Joseane — Luar Cosméticos"
+            className="h-full w-auto object-contain object-bottom"
+          />
+        </div>
+
+        {/* Conteúdo de texto */}
         <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl text-white animate-fade-in">
-             <div className="flex items-center gap-2 mb-4">
-               {/* Ícone Sparkles estava faltando */}
-              <Sparkles className="h-6 w-6 text-accent" /> 
-              {/* <span className="text-accent font-semibold tracking-wide"></span> // Span vazio removido */}
-            </div>
+          <div className="max-w-xl text-white animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Luar Cosméticos e Perfumaria
             </h1>
             <p className="text-xl mb-8 text-white/90">
               Sua loja multimarcas de cosméticos, com entrega rápida e produtos de qualidade.
             </p>
-             <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4">
               <Button variant="hero" size="lg" asChild>
                 <Link to="/catalog">Explorar Produtos</Link>
               </Button>

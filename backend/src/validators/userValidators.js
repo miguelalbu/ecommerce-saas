@@ -153,6 +153,30 @@ const checkoutSchema = z.object({
 });
 
 // ─────────────────────────────────────────────
+// SCHEMA DE ATUALIZAÇÃO DE PERFIL
+// ─────────────────────────────────────────────
+
+const updateProfileSchema = z.object({
+  nome: z.string().min(2, { message: 'O nome precisa ter no mínimo 2 caracteres.' }).optional(),
+  sobrenome: z.string().optional().nullable(),
+  email: z.string().email({ message: 'Formato de e-mail inválido.' }).optional(),
+  cpf: z
+    .string()
+    .optional()
+    .nullable()
+    .refine((val) => !val || validateCPF(val), {
+      message: 'CPF inválido. Verifique os dígitos.',
+    }),
+  telefone: z
+    .string()
+    .optional()
+    .nullable()
+    .refine((val) => !val || validatePhone(val), {
+      message: 'Telefone inválido. Informe DDD + número (10 ou 11 dígitos).',
+    }),
+});
+
+// ─────────────────────────────────────────────
 // EXPORTS
 // ─────────────────────────────────────────────
 
@@ -163,4 +187,5 @@ module.exports = {
   loginCustomerSchema,
   addressSchema,
   checkoutSchema,
+  updateProfileSchema,
 };

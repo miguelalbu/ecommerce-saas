@@ -80,6 +80,29 @@ exports.getAddresses = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res) => {
+  const { nome, sobrenome, email, cpf, telefone } = req.body;
+  try {
+    const updated = await prisma.cliente.update({
+      where: { id: req.user.id },
+      data: {
+        ...(nome !== undefined && { nome }),
+        ...(sobrenome !== undefined && { sobrenome }),
+        ...(email !== undefined && { email }),
+        ...(cpf !== undefined && { cpf }),
+        ...(telefone !== undefined && { telefone }),
+      },
+      select: { nome: true, sobrenome: true, email: true, cpf: true, telefone: true },
+    });
+    res.json(updated);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({ message: 'Este e-mail ou CPF já está em uso.' });
+    }
+    res.status(500).json({ message: 'Erro ao atualizar perfil.' });
+  }
+};
+
 exports.addAddress = async (req, res) => {
   const { rua, numero, complemento, bairro, cidade, estado, cep } = req.body;
   try {
@@ -92,5 +115,42 @@ exports.addAddress = async (req, res) => {
     res.status(201).json(newAddress);
   } catch (error) {
     res.status(500).json({ message: "Erro ao adicionar endereço." });
+  }
+};
+
+exports.deleteAddress = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const address = await prisma.endereco.findFirst({
+      where: { id, clienteId: req.user.id },
+    });
+    if (!address) return res.status(404).json({ message: 'Endereço não encontrado.' });
+    await prisma.endereco.delete({ where: { id } });
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao remover endereço.' });
+  }
+};
+
+exports.setPrincipalAddress = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const address = await prisma.endereco.findFirst({
+      where: { id, clienteId: req.user.id },
+    });
+    if (!address) return res.status(404).json({ message: 'Endereço não encontrado.' });
+    await prisma.$transaction([
+      prisma.endereco.updateMany({
+        where: { clienteId: req.user.id },
+        data: { principal: false },
+      }),
+      prisma.endereco.update({
+        where: { id },
+        data: { principal: true },
+      }),
+    ]);
+    res.json({ message: 'Endereço principal atualizado.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao definir endereço principal.' });
   }
 };

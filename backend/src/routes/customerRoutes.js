@@ -8,6 +8,7 @@ const {
   registerCustomerSchema,
   loginCustomerSchema,
   addressSchema,
+  updateProfileSchema,
 } = require('../validators/userValidators');
 
 // Rotas públicas
@@ -16,7 +17,10 @@ router.post('/login', validate(loginCustomerSchema), customerController.loginCus
 
 // Rotas protegidas para clientes autenticados
 router.get('/profile', protect, authorize('CUSTOMER'), customerController.getProfile);
+router.patch('/profile', protect, authorize('CUSTOMER'), validate(updateProfileSchema), customerController.updateProfile);
 router.get('/addresses', protect, authorize('CUSTOMER'), customerController.getAddresses);
 router.post('/addresses', protect, authorize('CUSTOMER'), validate(addressSchema), customerController.addAddress);
+router.delete('/addresses/:id', protect, authorize('CUSTOMER'), customerController.deleteAddress);
+router.patch('/addresses/:id/principal', protect, authorize('CUSTOMER'), customerController.setPrincipalAddress);
 
 module.exports = router;

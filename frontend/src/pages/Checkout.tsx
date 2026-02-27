@@ -90,7 +90,10 @@ const Checkout = () => {
   useEffect(() => {
     if (isAuthenticated && addresses) {
       if (addresses.length > 0) {
-        if (!selectedAddressId) setSelectedAddressId(addresses[0].id);
+        if (!selectedAddressId) {
+          const principal = addresses.find((a: any) => a.principal);
+          setSelectedAddressId(principal ? principal.id : addresses[0].id);
+        }
       } else {
         setSelectedAddressId('new');
       }
@@ -395,11 +398,12 @@ const Checkout = () => {
                     <CardContent>
                       {isAuthenticated && addresses && addresses.length > 0 && (
                         <RadioGroup value={selectedAddressId} onValueChange={setSelectedAddressId} className="mb-4 space-y-2">
-                          {addresses.map(addr => (
-                            <div key={addr.id} className="flex items-center space-x-2 border p-3 rounded hover:bg-accent/5">
+                          {addresses.map((addr: any) => (
+                            <div key={addr.id} className={`flex items-center space-x-2 border p-3 rounded hover:bg-accent/5 ${addr.principal ? 'border-primary bg-primary/5' : ''}`}>
                               <RadioGroupItem value={addr.id} id={addr.id} />
                               <Label htmlFor={addr.id} className="font-normal cursor-pointer flex-1">
                                 <span className="font-medium">{addr.rua}, {addr.numero}</span> - {addr.bairro}, {addr.cidade}
+                                {addr.principal && <Badge variant="secondary" className="ml-2 text-xs">Principal</Badge>}
                               </Label>
                             </div>
                           ))}

@@ -82,6 +82,7 @@ model Endereco {
   cidade      String
   estado      String
   cep         String
+  principal   Boolean @default(false)
 
   cliente   Cliente @relation(fields: [clienteId], references: [id])
   clienteId String  @map("cliente_id")

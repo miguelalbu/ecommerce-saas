@@ -305,6 +305,38 @@ export const getAddresses = async (token: string) => {
   return handleResponse(response);
 };
 
+export const updateProfile = async (data: any, token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/profile`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
+export const deleteAddress = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/addresses/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao remover endereço.');
+  }
+  return true;
+};
+
+export const setPrincipalAddress = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/customers/addresses/${id}/principal`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
 export const addAddress = async (addressData: any, token: string) => {
   const response = await fetch(`${BASE_URL}/customers/addresses`, {
     method: 'POST',

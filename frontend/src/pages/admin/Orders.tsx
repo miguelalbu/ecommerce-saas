@@ -91,17 +91,21 @@ const Orders = () => {
                         </Badge>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground mt-3">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm text-muted-foreground mt-3">
                         <div>
-                          <span className="font-medium block text-gray-500">Cliente:</span> 
+                          <span className="font-medium block text-gray-500">Cliente:</span>
                           <span className="text-gray-900">{order.cliente_nome || 'Cliente Balcão'}</span>
                         </div>
                         <div>
-                          <span className="font-medium block text-gray-500">Data:</span> 
+                          <span className="font-medium block text-gray-500">Unidade:</span>
+                          <span className="text-gray-900">{order.loja?.nome || '—'}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium block text-gray-500">Data:</span>
                           <span className="text-gray-900">{formatDate(order.criadoEm)}</span>
                         </div>
                         <div>
-                          <span className="font-medium block text-gray-500">Itens:</span> 
+                          <span className="font-medium block text-gray-500">Itens:</span>
                           <span className="text-gray-900">{itemCount}</span>
                         </div>
                         <div>

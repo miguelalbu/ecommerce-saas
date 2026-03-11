@@ -9,7 +9,8 @@ exports.getAllOrders = async (req, res) => {
         criadoEm: 'desc',
       },
       include: {
-        cliente: true, // Opcional: já traz os dados do cliente na lista
+        cliente: true,
+        loja: true,
       },
     });
     res.json(orders);
@@ -20,7 +21,7 @@ exports.getAllOrders = async (req, res) => {
 };
 
 exports.createOrder = async (req, res) => {
-  const { valor_total, status, clienteId, cliente_nome, items, observacao } = req.body;
+  const { valor_total, status, clienteId, cliente_nome, items, observacao, lojaId } = req.body;
 
   if (!valor_total || !items || items.length === 0) {
     return res.status(400).json({ message: 'O pedido precisa ter valor total e itens.' });
@@ -48,10 +49,10 @@ exports.createOrder = async (req, res) => {
           valor_total: parseFloat(valor_total),
           status: status || 'PROCESSANDO',
           // Se clienteId vier, usa ele. Se não, deixa null.
-          clienteId: clienteId || null, 
+          clienteId: clienteId || null,
           cliente_nome: cliente_nome || 'Cliente Balcão',
-          // Se tiver campo observação no banco, salve aqui:
-          // observacao: observacao 
+          observacao: observacao || null,
+          lojaId: lojaId || null,
         },
       });
 
@@ -180,15 +181,13 @@ exports.getOrderById = async (req, res) => {
     const order = await prisma.pedido.findUnique({
       where: { id },
       include: {
-        cliente: true, // Traz os dados do cliente
-        
-        // --- ADICIONE ISTO AQUI ---
+        cliente: true,
+        loja: true,
         itens: {
           include: {
-            produto: true // Entra dentro de cada item e busca o nome/foto do produto
+            produto: true
           }
         }
-        // --------------------------
       },
     });
 

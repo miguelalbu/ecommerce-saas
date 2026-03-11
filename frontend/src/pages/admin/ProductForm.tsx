@@ -26,6 +26,7 @@ type ProductData = {
     estoque: number | string;
     categoriaId: string;
     isFeatured: boolean | null;
+    showInCatalog: boolean;
     imageUrl: string | null;
     categoria: Category;
 };
@@ -51,6 +52,7 @@ const ProductForm = () => {
     const [stock, setStock] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [isFeatured, setIsFeatured] = useState(false);
+    const [showInCatalog, setShowInCatalog] = useState(true);
 
     // Busca as categorias para o dropdown
     const { data: categories, isLoading: isLoadingCategories } = useQuery<Category[]>({
@@ -77,6 +79,7 @@ const ProductForm = () => {
             setStock(String(productData.estoque));
             setCategoryId(productData.categoriaId);
             setIsFeatured(productData.isFeatured || false);
+            setShowInCatalog(productData.showInCatalog ?? true);
             if (productData.imageUrl) {
                 setImagePreview(`${BACKEND_URL}/${productData.imageUrl}`);
             }
@@ -135,6 +138,7 @@ const ProductForm = () => {
         formData.append('stock', stock);
         formData.append('categoryId', categoryId);
         formData.append('isFeatured', String(isFeatured));
+        formData.append('showInCatalog', String(showInCatalog));
 
         if (imageFile) {
             formData.append('image', imageFile);
@@ -201,8 +205,18 @@ const ProductForm = () => {
                             {imagePreview && <img src={imagePreview} alt="Pré-visualização" className="mt-4 w-32 h-32 object-cover rounded" />}
                         </div>
 
-                        {/* Campo Switch para Destaque */}
+                        {/* Campo Switch para Visibilidade no Catálogo */}
                         <div className="flex items-center space-x-2 pt-2">
+                           <Switch
+                             id="showInCatalog"
+                             checked={showInCatalog}
+                             onCheckedChange={setShowInCatalog}
+                           />
+                           <Label htmlFor="showInCatalog">Exibir no catálogo online</Label>
+                        </div>
+
+                        {/* Campo Switch para Destaque */}
+                        <div className="flex items-center space-x-2">
                            <Switch
                              id="isFeatured"
                              checked={isFeatured}

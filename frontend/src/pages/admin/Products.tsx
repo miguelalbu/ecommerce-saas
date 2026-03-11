@@ -1,5 +1,3 @@
-// /src/admin/Products.tsx
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -31,6 +29,7 @@ type Product = {
   preco: number;
   precoCompra: number | null;
   estoque: number;
+  showInCatalog: boolean;
   categoria: { nome: string };
   imageUrl?: string;
 };
@@ -65,7 +64,7 @@ const Products = () => {
   // Busca os produtos usando react-query.
   const { data: products, isLoading, error } = useQuery<Product[]>({
     queryKey: ['products', debouncedSearchTerm],
-    queryFn: () => getProducts(debouncedSearchTerm),
+    queryFn: () => getProducts(debouncedSearchTerm, undefined, undefined, undefined, true),
   });
 
   // 6. USEMUTATION: Hook do react-query para ações que modificam dados (Criar, Atualizar, Deletar).
@@ -137,6 +136,9 @@ const Products = () => {
                     <h3 className="font-semibold text-lg mb-1">{product.nome}</h3>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <Badge variant="outline">{product.categoria.nome}</Badge>
+                      {!product.showInCatalog && (
+                        <Badge variant="secondary">Oculto do catálogo</Badge>
+                      )}
                       <span>Estoque: {product.estoque}</span>
                       <span className="font-semibold text-foreground">
                         Preço Venda: {formatCurrency(Number(product.preco))}

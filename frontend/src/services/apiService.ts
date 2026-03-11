@@ -91,13 +91,15 @@ export const getProducts = async (
   searchTerm?: string,
   categoryId?: string,
   sortBy?: string,
-  featuredOnly?: boolean
+  featuredOnly?: boolean,
+  includeHidden?: boolean
 ) => {
   const params = new URLSearchParams();
   if (searchTerm) params.append('search', searchTerm);
   if (categoryId && categoryId !== 'all') params.append('categoryId', categoryId);
   if (sortBy) params.append('sortBy', sortBy);
   if (featuredOnly) params.append('featuredOnly', 'true');
+  if (includeHidden) params.append('includeHidden', 'true');
 
   const response = await fetch(`${BASE_URL}/shop/products?${params.toString()}`);
   return handleResponse(response);
@@ -142,6 +144,43 @@ export const deleteProduct = async (id: string, token: string) => {
     const data = await response.json();
     const message = data.message || `Erro ${response.status}`;
     throw new Error(message);
+  }
+  return true;
+};
+
+// --- LOJAS ---
+
+export const getLojas = async () => {
+  const response = await fetch(`${BASE_URL}/lojas`);
+  return handleResponse(response);
+};
+
+export const createLoja = async (data: { nome: string; endereco?: string; telefone?: string }, token: string) => {
+  const response = await fetch(`${BASE_URL}/lojas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
+export const updateLoja = async (id: string, data: { nome?: string; endereco?: string; telefone?: string; ativo?: boolean }, token: string) => {
+  const response = await fetch(`${BASE_URL}/lojas/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
+export const deleteLoja = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/lojas/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao deletar loja');
   }
   return true;
 };

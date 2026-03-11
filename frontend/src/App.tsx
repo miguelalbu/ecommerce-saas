@@ -27,6 +27,7 @@ import OrderDetail from "./pages/admin/OrderDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from './pages/Profile';
 import OrdersForm from './pages/admin/OrdersForm'
+import Stores from './pages/admin/Stores'
 import MyOrders from "./pages/myOrders";
 import ClientOrderDetail from "./pages/ClientOrderDetail";
 
@@ -73,6 +74,7 @@ const App = () => (
                 <Route path="orders/new" element={<OrdersForm />} />
                 <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="categories" element={<Categories />} />
+                <Route path="stores" element={<Stores />} />
                 <Route path="users" element={<Users />} />
               </Route>
 

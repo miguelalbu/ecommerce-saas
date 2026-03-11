@@ -2,12 +2,13 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.getAllProducts = async (req, res) => {
-  const { search, categoryId, sortBy, featuredOnly } = req.query;
+  const { search, categoryId, sortBy, featuredOnly, includeHidden } = req.query;
 
   const whereCondition = {
     ...(search && { nome: { contains: search, mode: 'insensitive' } }),
     ...(categoryId && { categoriaId: categoryId }),
     ...(featuredOnly === 'true' && { isFeatured: true }),
+    ...(includeHidden !== 'true' && { showInCatalog: true }),
   };
 
   let orderByCondition = {};
@@ -40,7 +41,7 @@ exports.getAllProducts = async (req, res) => {
 };
 
 exports.createProduct = async (req, res) => {
-  const { name, description, price, purchasePrice, stock, categoryId, isFeatured } = req.body;
+  const { name, description, price, purchasePrice, stock, categoryId, isFeatured, showInCatalog } = req.body;
 
   const imageUrl = req.file ? `uploads/${req.file.filename}` : null;
 
@@ -55,6 +56,7 @@ exports.createProduct = async (req, res) => {
         categoriaId: categoryId,
         imageUrl: imageUrl,
         isFeatured: isFeatured === 'true' || isFeatured === true,
+        showInCatalog: showInCatalog === undefined ? true : (showInCatalog === 'true' || showInCatalog === true),
       },
     });
     res.status(201).json(newProduct);
@@ -108,7 +110,7 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, purchasePrice, stock, categoryId, isFeatured } = req.body;
+  const { name, description, price, purchasePrice, stock, categoryId, isFeatured, showInCatalog } = req.body;
 
   // Objeto que conterá apenas os dados a serem atualizados
   const dataToUpdate = {
@@ -119,6 +121,7 @@ exports.updateProduct = async (req, res) => {
     estoque: parseInt(stock, 10),
     ...(categoryId && categoryId !== 'undefined' && { categoriaId: categoryId }),
     isFeatured: isFeatured === 'true' || isFeatured === true,
+    showInCatalog: showInCatalog === 'true' || showInCatalog === true,
   };
 
   // Se uma nova imagem foi enviada, adiciona o novo caminho ao objeto de atualização

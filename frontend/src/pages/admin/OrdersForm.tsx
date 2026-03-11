@@ -12,15 +12,17 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 
-import { 
-    getProducts, 
-    createOrder, 
-    getOrderById, 
-    updateOrder 
+import {
+    getProducts,
+    createOrder,
+    getOrderById,
+    updateOrder,
+    getLojas,
 } from '@/services/apiService';
 
 // Tipos
 type Product = { id: string; nome: string; preco: number | string; estoque: number };
+type Loja = { id: string; nome: string; endereco: string | null };
 
 // --- CONFIGURAÇÃO LOJA FÍSICA ---
 // Se você tiver um ID de cliente específico para "Venda de Balcão" no seu banco, coloque entre as aspas.
@@ -40,13 +42,21 @@ const OrdersForm = () => {
     const [productId, setProductId] = useState('');
     const [quantity, setQuantity] = useState<number>(1);
     const [totalPrice, setTotalPrice] = useState<string>('');
-    const [status, setStatus] = useState('PAID'); // Venda física geralmente já sai Paga
+    const [status, setStatus] = useState('PAID');
     const [observation, setObservation] = useState('');
+    const [lojaId, setLojaId] = useState<string>('');
 
     // 1. Busca Produtos
     const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
         queryKey: ['products'],
-        queryFn: () => getProducts(), 
+        queryFn: () => getProducts(undefined, undefined, undefined, undefined, true),
+        enabled: !!token,
+    });
+
+    // Busca Lojas
+    const { data: lojas } = useQuery<Loja[]>({
+        queryKey: ['lojas'],
+        queryFn: getLojas,
         enabled: !!token,
     });
 
@@ -99,11 +109,12 @@ const OrdersForm = () => {
 
             // Payload formatado para o Backend (Node/Prisma)
             const payload = {
-                clienteId: userIdToSend,         // Backend espera: clienteId
-                valor_total: Number(totalPrice), // Backend espera: valor_total
+                clienteId: userIdToSend,
+                valor_total: Number(totalPrice),
                 status: status,
-                cliente_nome: "Venda Balcão",    // Nome padrão caso não tenha ID
-                observacao: observation,         // Backend espera: observacao
+                cliente_nome: "Venda Balcão",
+                observacao: observation,
+                lojaId: lojaId && lojaId !== 'none' ? lojaId : null,
                 items: [
                     {
                         productId: productId,
@@ -218,6 +229,24 @@ const OrdersForm = () => {
                                         <SelectItem value="SHIPPED">Enviado</SelectItem>
                                         <SelectItem value="DELIVERED">Entregue</SelectItem>
                                         <SelectItem value="CANCELED">Cancelado</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Loja */}
+                            <div>
+                                <Label htmlFor="loja">Unidade da Loja</Label>
+                                <Select value={lojaId} onValueChange={setLojaId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione a unidade" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">— Sem unidade —</SelectItem>
+                                        {lojas?.map((loja) => (
+                                            <SelectItem key={loja.id} value={loja.id}>
+                                                {loja.nome}{loja.endereco ? ` — ${loja.endereco}` : ''}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

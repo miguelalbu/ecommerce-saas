@@ -10,6 +10,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const userManagementeRoutes = require('./routes/userManagementRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const authRoutes = require('./routes/authRoutes');
+const lojaRoutes = require('./routes/lojaRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -30,6 +31,7 @@ app.use('/api/orders', orderRoutes); // API Orders route
 app.use('/api/user-management', userManagementeRoutes); // API User Management route
 app.use('/api/checkout', checkoutRoutes); // API Checkout route
 app.use('/api/auth', authRoutes);         // API Auth (forgot/reset password)
+app.use('/api/lojas', lojaRoutes);        // API Lojas route
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port http://localhost:${PORT}`);

@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 exports.placeOrder = async (req, res) => {
-  const { cartItems, address, isPickup } = req.body;
+  const { cartItems, address, isPickup, cupomCodigo } = req.body;
   const userId = req.user?.id; // Pode ser undefined se for convidado
 
   // Validação básica
@@ -43,7 +43,37 @@ exports.placeOrder = async (req, res) => {
         });
       }
 
-      // 3. Formatar Texto de Entrega (Para o campo 'observacao')
+      // 3. Validar e aplicar cupom (se fornecido)
+      let desconto = 0;
+      let cupomId = null;
+
+      if (cupomCodigo) {
+        const cupom = await tx.cupom.findUnique({ where: { codigo: cupomCodigo.toUpperCase().trim() } });
+
+        if (!cupom) throw new Error('Cupom não encontrado.');
+        if (!cupom.ativo) throw new Error('Este cupom não está ativo.');
+        if (cupom.dataExpiracao && new Date() > cupom.dataExpiracao) throw new Error('Este cupom está expirado.');
+        if (cupom.usosMaximos !== null && cupom.usosAtuais >= cupom.usosMaximos) {
+          throw new Error('Este cupom atingiu o limite de usos.');
+        }
+        if (cupom.minimo !== null && total < Number(cupom.minimo)) {
+          throw new Error(`Pedido mínimo de R$ ${Number(cupom.minimo).toFixed(2)} para usar este cupom.`);
+        }
+
+        if (cupom.tipo === 'PERCENTUAL') {
+          desconto = (total * Number(cupom.valor)) / 100;
+        } else {
+          desconto = Math.min(Number(cupom.valor), total);
+        }
+        desconto = parseFloat(desconto.toFixed(2));
+        cupomId = cupom.id;
+
+        await tx.cupom.update({ where: { id: cupom.id }, data: { usosAtuais: { increment: 1 } } });
+      }
+
+      total = parseFloat((total - desconto).toFixed(2));
+
+      // 4. Formatar Texto de Entrega (Para o campo 'observacao')
       let deliveryInfoString = "";
       if (isPickup) {
         deliveryInfoString = `[RETIRADA NA LOJA]
@@ -75,10 +105,15 @@ Complemento: ${address.complemento || 'N/A'}`;
 
       const pedidoData = {
         valor_total: total,
+        desconto: desconto > 0 ? desconto : null,
         status: 'PROCESSANDO',
-        observacao: deliveryInfoString, // Agora o banco vai aceitar isso!
-        cliente_nome: clienteNome, 
+        observacao: deliveryInfoString,
+        cliente_nome: clienteNome,
       };
+
+      if (cupomId) {
+        pedidoData.cupom = { connect: { id: cupomId } };
+      }
 
       // Se tiver usuário logado, conecta.
       if (userId) {

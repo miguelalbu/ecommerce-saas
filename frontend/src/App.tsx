@@ -28,6 +28,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from './pages/Profile';
 import OrdersForm from './pages/admin/OrdersForm'
 import Stores from './pages/admin/Stores'
+import Coupons from './pages/admin/Coupons'
 import MyOrders from "./pages/myOrders";
 import ClientOrderDetail from "./pages/ClientOrderDetail";
 
@@ -75,6 +76,7 @@ const App = () => (
                 <Route path="orders/:id" element={<OrderDetail />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="stores" element={<Stores />} />
+                <Route path="coupons" element={<Coupons />} />
                 <Route path="users" element={<Users />} />
               </Route>
 

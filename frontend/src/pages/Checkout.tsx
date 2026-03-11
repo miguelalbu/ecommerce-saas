@@ -14,8 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getProfile, getAddresses, placeOrder } from "@/services/apiService";
-import { Store, Truck, MapPin, Loader2 } from "lucide-react";
+import { getProfile, getAddresses, placeOrder, validateCupom } from "@/services/apiService";
+import { Store, Truck, MapPin, Loader2, Tag, X } from "lucide-react";
 import { useViaCEP } from "@/hooks/useViaCEP";
 import {
   maskCPF,
@@ -78,6 +78,10 @@ const Checkout = () => {
 
   const { isLoadingCEP, cepNotFound, fetchAddressByCEP, resetCEPState } = useViaCEP();
 
+  // Cupom
+  const [cupomInput, setCupomInput] = useState('');
+  const [appliedCupom, setAppliedCupom] = useState<{ codigo: string; desconto: number } | null>(null);
+
   // Erros de validação
   const [guestErrors, setGuestErrors] = useState<CheckoutGuestErrors>({});
   const [addressErrors, setAddressErrors] = useState<CheckoutAddressErrors>({});
@@ -128,6 +132,15 @@ const Checkout = () => {
       }
     }
   }, [fetchAddressByCEP]);
+
+  const cupomMutation = useMutation({
+    mutationFn: () => validateCupom(cupomInput, subtotal),
+    onSuccess: (data) => {
+      setAppliedCupom({ codigo: data.cupom.codigo, desconto: data.desconto });
+      toast({ title: `Cupom aplicado! Desconto de R$ ${data.desconto.toFixed(2)}` });
+    },
+    onError: (error: Error) => toast({ title: 'Cupom inválido', description: error.message, variant: 'destructive' }),
+  });
 
   const checkoutMutation = useMutation({
     mutationFn: (checkoutData: any) => placeOrder(checkoutData, token),
@@ -242,6 +255,7 @@ const Checkout = () => {
       cartItems: cartItems.map(item => ({ id: item.id, quantity: item.quantity })),
       address: addressData,
       isPickup: deliveryMethod === 'pickup',
+      cupomCodigo: appliedCupom?.codigo || null,
     };
 
     checkoutMutation.mutate(checkoutData);
@@ -249,6 +263,8 @@ const Checkout = () => {
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const frete = 0;
+  const desconto = appliedCupom?.desconto ?? 0;
+  const total = subtotal + frete - desconto;
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
@@ -528,6 +544,43 @@ const Checkout = () => {
                       ))}
                     </div>
                     <Separator />
+
+                    {/* Cupom */}
+                    {appliedCupom ? (
+                      <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm">
+                        <div className="flex items-center gap-2 text-green-700">
+                          <Tag className="h-4 w-4" />
+                          <span className="font-mono font-semibold">{appliedCupom.codigo}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setAppliedCupom(null); setCupomInput(''); }}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Código do cupom"
+                          value={cupomInput}
+                          onChange={(e) => setCupomInput(e.target.value.toUpperCase())}
+                          className="font-mono text-sm h-9"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-9 flex-shrink-0"
+                          disabled={!cupomInput.trim() || cupomMutation.isPending}
+                          onClick={() => cupomMutation.mutate()}
+                        >
+                          {cupomMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>Subtotal</span>
@@ -541,11 +594,17 @@ const Checkout = () => {
                           <span>R$ {frete.toFixed(2)}</span>
                         )}
                       </div>
+                      {desconto > 0 && (
+                        <div className="flex justify-between text-sm text-green-600 font-medium">
+                          <span>Desconto</span>
+                          <span>- R$ {desconto.toFixed(2)}</span>
+                        </div>
+                      )}
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span>R$ {(subtotal + frete).toFixed(2)}</span>
+                      <span>R$ {total.toFixed(2)}</span>
                     </div>
                     <Button
                       type="submit"

@@ -376,6 +376,54 @@ export const setPrincipalAddress = async (id: string, token: string) => {
   return handleResponse(response);
 };
 
+// --- CUPONS ---
+
+export const getCupons = async (token: string) => {
+  const response = await fetch(`${BASE_URL}/cupons`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  return handleResponse(response);
+};
+
+export const createCupom = async (data: any, token: string) => {
+  const response = await fetch(`${BASE_URL}/cupons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
+export const updateCupom = async (id: string, data: any, token: string) => {
+  const response = await fetch(`${BASE_URL}/cupons/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(response);
+};
+
+export const deleteCupom = async (id: string, token: string) => {
+  const response = await fetch(`${BASE_URL}/cupons/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Erro ao deletar cupom');
+  }
+  return true;
+};
+
+export const validateCupom = async (codigo: string, total: number) => {
+  const response = await fetch(`${BASE_URL}/cupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ codigo, total }),
+  });
+  return handleResponse(response);
+};
+
 export const addAddress = async (addressData: any, token: string) => {
   const response = await fetch(`${BASE_URL}/customers/addresses`, {
     method: 'POST',

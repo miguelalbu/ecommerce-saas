@@ -11,6 +11,7 @@ const userManagementeRoutes = require('./routes/userManagementRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const authRoutes = require('./routes/authRoutes');
 const lojaRoutes = require('./routes/lojaRoutes');
+const cupomRoutes = require('./routes/cupomRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -32,6 +33,7 @@ app.use('/api/user-management', userManagementeRoutes); // API User Management r
 app.use('/api/checkout', checkoutRoutes); // API Checkout route
 app.use('/api/auth', authRoutes);         // API Auth (forgot/reset password)
 app.use('/api/lojas', lojaRoutes);        // API Lojas route
+app.use('/api/cupons', cupomRoutes);      // API Cupons route
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port http://localhost:${PORT}`);

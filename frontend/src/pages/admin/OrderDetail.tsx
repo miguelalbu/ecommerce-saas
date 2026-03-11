@@ -62,14 +62,14 @@ const OrderDetail = () => {
   const deliveryInfo = order.observacao || "Sem informações de entrega registradas.";
 
   return (
-    <div className="animate-in fade-in duration-500 max-w-6xl mx-auto p-4">
+    <div className="animate-in fade-in duration-500 max-w-6xl mx-auto">
         {/* Topo */}
-        <div className="flex items-center gap-4 mb-6">
-            <Button variant="outline" size="icon" asChild>
+        <div className="flex items-start gap-3 mb-6">
+            <Button variant="outline" size="icon" asChild className="flex-shrink-0 mt-1">
                 <Link to="/admin/orders"><ArrowLeft className="h-4 w-4" /></Link>
             </Button>
             <div>
-                <h1 className="text-2xl font-bold flex items-center gap-3">
+                <h1 className="text-xl md:text-2xl font-bold flex flex-wrap items-center gap-2">
                     Pedido #{order.id.substring(0, 8).toUpperCase()}
                     <Badge className={`${statusInfo.color} border-none`}>{statusInfo.label}</Badge>
                 </h1>
@@ -77,7 +77,7 @@ const OrderDetail = () => {
             </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
             {/* Coluna Esquerda: Itens e Ações */}
             <div className="lg:col-span-2 space-y-6">
                 
@@ -104,6 +104,7 @@ const OrderDetail = () => {
                 <Card>
                     <CardHeader><CardTitle>Itens do Pedido</CardTitle></CardHeader>
                     <CardContent>
+                        <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -128,6 +129,7 @@ const OrderDetail = () => {
                                 )}
                             </TableBody>
                         </Table>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

@@ -49,10 +49,10 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Dashboard</h1>
 
       {/* Cards de Estatísticas Gerais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
         {stats.map((stat) => (
           <Card key={stat.title} className="animate-fade-in">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -69,8 +69,8 @@ const Dashboard = () => {
       </div>
 
       {/* Cards de Métricas de Estoque */}
-      <h2 className="text-lg font-semibold mb-4 text-muted-foreground">Métricas de Estoque</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <h2 className="text-base md:text-lg font-semibold mb-4 text-muted-foreground">Métricas de Estoque</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6">
         <Card className="animate-fade-in">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Receita Potencial do Estoque</CardTitle>
@@ -119,7 +119,7 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
         {/* Card de Pedidos Recentes */}
         <Card className="animate-fade-in">
           <CardHeader>

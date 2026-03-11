@@ -112,7 +112,7 @@ const AdminLayout = () => {
 
       {/* --- 4. Conteúdo Principal --- */}
       {/* md:ml-64 empurra o conteúdo para a direita no desktop para não ficar embaixo do menu fixo */}
-      <main className="flex-1 p-8 overflow-auto md:ml-64 transition-all duration-300">
+      <main className="flex-1 p-4 md:p-8 overflow-auto md:ml-64 transition-all duration-300">
         <Outlet />
       </main>
     </div>

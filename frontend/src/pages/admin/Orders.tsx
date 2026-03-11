@@ -57,8 +57,8 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Gerenciar Pedidos</h1>
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">Gerenciar Pedidos</h1>
         <Button asChild>
           <Link to="/admin/orders/new">
             <Plus className="mr-2 h-4 w-4" />

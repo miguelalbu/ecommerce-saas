@@ -155,7 +155,7 @@ const ProductForm = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-8">{isEditMode ? 'Editar Produto' : 'Novo Produto'}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">{isEditMode ? 'Editar Produto' : 'Novo Produto'}</h1>
             <Card>
                 <CardHeader>
                     <CardTitle>Detalhes do Produto</CardTitle>

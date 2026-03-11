@@ -162,7 +162,7 @@ const OrdersForm = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-8">{isEditMode ? 'Editar Pedido' : 'Nova Venda (Loja Física)'}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">{isEditMode ? 'Editar Pedido' : 'Nova Venda (Loja Física)'}</h1>
             <Card>
                 <CardHeader>
                     <CardTitle>Dados da Venda</CardTitle>

@@ -4,12 +4,11 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, UserCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, deleteUser, deleteCustomer } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +22,6 @@ import {
 
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('pt-BR');
 
-// Tipo para unificar a estrutura de Admin e Cliente para a tabela
 type DisplayUser = {
   id: string;
   nome: string;
@@ -33,7 +31,7 @@ type DisplayUser = {
 };
 
 const Users = () => {
-  const { token, userRole } = useAuth(); // Pegar a role do usuário logado
+  const { token } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [userToDelete, setUserToDelete] = useState<DisplayUser | null>(null);
@@ -45,13 +43,8 @@ const Users = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (user: DisplayUser) => {
-      // Decide qual função da API chamar com base no tipo do usuário
-      if (user.type === 'ADMIN') {
-        return deleteUser(user.id, token!);
-      }
-      return deleteCustomer(user.id, token!);
-    },
+    mutationFn: (user: DisplayUser) =>
+      user.type === 'ADMIN' ? deleteUser(user.id, token!) : deleteCustomer(user.id, token!),
     onSuccess: () => {
       toast({ title: 'Sucesso!', description: 'Usuário removido.' });
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -62,75 +55,69 @@ const Users = () => {
     onSettled: () => setUserToDelete(null),
   });
 
-  const handleDeleteConfirm = () => {
-    if (userToDelete) {
-      deleteMutation.mutate(userToDelete);
-    }
-  };
-
-  // Combina e formata as listas de admins e clientes
   const allUsers: DisplayUser[] = data
     ? [
-        ...data.admins.map(u => ({ ...u, type: u.funcao as 'ADMIN' })),
-        ...data.customers.map(u => ({ ...u, type: 'CLIENTE' as const })),
+        ...data.admins.map((u: any) => ({ ...u, type: u.funcao as 'ADMIN' })),
+        ...data.customers.map((u: any) => ({ ...u, type: 'CLIENTE' as const })),
       ]
     : [];
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Gerenciar Usuários</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Gerenciar Usuários</h1>
+
       <Card>
         <CardHeader><CardTitle>Lista de Usuários</CardTitle></CardHeader>
-        <CardContent>
-          {isLoading ? <p>Carregando...</p> : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Data de Cadastro</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allUsers.map((user) => (
-                  <TableRow key={`${user.type}-${user.id}`}>
-                    <TableCell className="font-medium">{user.nome}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.type === 'ADMIN' ? 'default' : 'outline'}>
+        <CardContent className="p-0 md:p-6">
+          {isLoading ? (
+            <p className="p-6">Carregando...</p>
+          ) : allUsers.length === 0 ? (
+            <p className="p-6 text-muted-foreground">Nenhum usuário encontrado.</p>
+          ) : (
+            <ul className="divide-y">
+              {allUsers.map((user) => (
+                <li key={`${user.type}-${user.id}`} className="flex items-center gap-3 p-4">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-full bg-muted flex-shrink-0">
+                    <UserCircle className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm truncate">{user.nome}</span>
+                      <Badge variant={user.type === 'ADMIN' ? 'default' : 'outline'} className="text-xs">
                         {user.type}
                       </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(user.criadoEm)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => setUserToDelete(user)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">Cadastro: {formatDate(user.criadoEm)}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-0"
+                    onClick={() => setUserToDelete(user)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
         </CardContent>
       </Card>
 
-      {/* Dialog de Confirmação */}
       <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso irá remover permanentemente o usuário 
+              Isso irá remover permanentemente o usuário
               <span className="font-bold"> {userToDelete?.nome}</span> ({userToDelete?.email}).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteConfirm} 
+            <AlertDialogAction
+              onClick={() => userToDelete && deleteMutation.mutate(userToDelete)}
               className="bg-destructive hover:bg-destructive/90"
               disabled={deleteMutation.isPending}
             >

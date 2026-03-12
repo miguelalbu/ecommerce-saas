@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
 
 const userRoutes = require('./routes/userRoutes');
 const shopRoutes = require('./routes/shopRoutes');
@@ -22,6 +25,28 @@ app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'E-commerce API is up and running!' });
+});
+
+app.get('/api/health', async (req, res) => {
+  const start = Date.now();
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: 'ok',
+      uptime: process.uptime(),
+      db: 'ok',
+      latency_ms: Date.now() - start,
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    res.status(503).json({
+      status: 'error',
+      uptime: process.uptime(),
+      db: 'unreachable',
+      latency_ms: Date.now() - start,
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 app.use('/api/users', userRoutes); // API Users route
